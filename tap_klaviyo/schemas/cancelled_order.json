@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "uuid": {
+      "type": "string"
+    },
+    "event_name": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "integer"
+    },
+    "object": {
+      "type": "string"
+    },
+    "datetime": {
+      "type": "string"
+    },
+    "statistic_id": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "event_properties": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "ItemPrice": {
+          "type": "number"
+        },
+        "$event_id": {
+          "type": "string"
+        },
+        "Quantity": {
+          "type": "string"
+        }
+      }
+    },
+    "person": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "$timezone": {
+          "type": "string"
+        },
+        "$country": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

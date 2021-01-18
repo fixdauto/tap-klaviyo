@@ -25,7 +25,11 @@ EVENT_MAPPINGS = {
     "Subscribed to List": "subscribe_list",
     "Updated Email Preferences": "update_email_preferences",
     "Dropped Email": "dropped_email",
+    "Placed Order": "placed_order",
+    "Cancelled Order": "cancelled_order"
 }
+
+logger = singer.get_logger()
 
 
 class Stream(object):
@@ -122,6 +126,7 @@ def get_available_metrics(api_key):
                                   ENDPOINTS['metrics'], api_key):
         for metric in response.json().get('data'):
             if metric['name'] in EVENT_MAPPINGS:
+                logger.info(metric)
                 metric_streams.append(
                     Stream(
                         stream=EVENT_MAPPINGS[metric['name']],
@@ -130,7 +135,7 @@ def get_available_metrics(api_key):
                         replication_method='INCREMENTAL'
                     )
                 )
-
+    logger.info(metric_streams)
     return metric_streams
 
 
@@ -144,7 +149,6 @@ def do_discover(api_key):
     print(json.dumps(discover(api_key), indent=2))
 
 def main():
-
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
 
     if args.discover:
@@ -153,7 +157,6 @@ def main():
     else:
         catalog = args.catalog.to_dict() if args.catalog else discover(
              args.config['api_key'])
-
         state = args.state if args.state else {"bookmarks": {}}
         do_sync(args.config, state, catalog)
 

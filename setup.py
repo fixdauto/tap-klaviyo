@@ -30,6 +30,8 @@ setup(name='tap-klaviyo',
                 "subscribe_list.json",
                 "unsub_list.json",
                 "update_email_preferences.json",
+                "cancelled_order.json",
+                "placed_order.json"
               ]
          },
       include_package_data=True
