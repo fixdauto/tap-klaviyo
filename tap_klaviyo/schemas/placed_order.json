@@ -31,13 +31,7 @@
         "$event_id": {
           "type": "string"
         },
-        "Item Count": {
-          "type": "number"
-        },
-        "total_price": {
-          "type": "string"
-        },
-        "items": {
+        "Items": {
           "type": "object"
         }
       }
