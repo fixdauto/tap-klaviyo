@@ -15,16 +15,16 @@ ENDPOINTS = {
 }
 
 EVENT_MAPPINGS = {
-    "Received Email": "receive",
-    "Clicked Email": "click",
-    "Opened Email": "open",
-    "Bounced Email": "bounce",
-    "Unsubscribed": "unsubscribe",
-    "Marked Email as Spam": "mark_as_spam",
-    "Unsubscribed from List": "unsub_list",
-    "Subscribed to List": "subscribe_list",
-    "Updated Email Preferences": "update_email_preferences",
-    "Dropped Email": "dropped_email",
+    # "Received Email": "receive",
+    # "Clicked Email": "click",
+    # "Opened Email": "open",
+    # "Bounced Email": "bounce",
+    # "Unsubscribed": "unsubscribe",
+    # "Marked Email as Spam": "mark_as_spam",
+    # "Unsubscribed from List": "unsub_list",
+    # "Subscribed to List": "subscribe_list",
+    # "Updated Email Preferences": "update_email_preferences",
+    # "Dropped Email": "dropped_email",
     "Placed Order": "placed_order",
     "Cancelled Order": "cancelled_order"
 }
@@ -96,7 +96,7 @@ def load_schema(name):
 def do_sync(config, state, catalog):
     api_key = config['api_key']
     start_date = config['start_date'] if 'start_date' in config else None
-
+    logger.info(state)
     stream_ids_to_sync = set()
 
     for stream in catalog.get('streams'):
