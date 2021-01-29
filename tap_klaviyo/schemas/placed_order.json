@@ -32,7 +32,7 @@
           "type": "string"
         },
         "Items": {
-          "type": "object"
+          "type": "array"
         }
       }
     },
