@@ -25,8 +25,8 @@ EVENT_MAPPINGS = {
     # "Subscribed to List": "subscribe_list",
     # "Updated Email Preferences": "update_email_preferences",
     # "Dropped Email": "dropped_email",
-    "Placed Order": "placed_order"
-    # "Cancelled Order": "cancelled_order"
+    "Placed Order": "placed_order",
+    "Cancelled Order": "cancelled_order"
 }
 
 logger = singer.get_logger()
