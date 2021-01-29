@@ -15,17 +15,17 @@ ENDPOINTS = {
 }
 
 EVENT_MAPPINGS = {
-    # "Received Email": "receive",
-    # "Clicked Email": "click",
-    # "Opened Email": "open",
-    # "Bounced Email": "bounce",
-    # "Unsubscribed": "unsubscribe",
-    # "Marked Email as Spam": "mark_as_spam",
-    # "Unsubscribed from List": "unsub_list",
-    # "Subscribed to List": "subscribe_list",
-    # "Updated Email Preferences": "update_email_preferences",
-    # "Dropped Email": "dropped_email",
-    # "Placed Order": "placed_order",
+    "Received Email": "receive",
+    "Clicked Email": "click",
+    "Opened Email": "open",
+    "Bounced Email": "bounce",
+    "Unsubscribed": "unsubscribe",
+    "Marked Email as Spam": "mark_as_spam",
+    "Unsubscribed from List": "unsub_list",
+    "Subscribed to List": "subscribe_list",
+    "Updated Email Preferences": "update_email_preferences",
+    "Dropped Email": "dropped_email",
+    "Placed Order": "placed_order",
     "Cancelled Order": "cancelled_order"
 }
 

@@ -25,17 +25,14 @@
     "event_properties": {
       "type": "object",
       "properties": {
-        "Name": {
+        "$value": {
           "type": "string"
-        },
-        "ItemPrice": {
-          "type": "number"
         },
         "$event_id": {
           "type": "string"
         },
-        "Quantity": {
-          "type": "string"
+        "$Items": {
+          "type": "array"
         }
       }
     },
