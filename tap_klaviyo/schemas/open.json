@@ -28,11 +28,26 @@
         "Campaign Name": {
           "type": "string"
         },
+        "$flow": {
+          "type": "string"
+        },
         "Subject": {
           "type": "string"
         },
         "$event_id": {
           "type": "string"
+        },
+        "Email Domain": {
+          "type": "string"
+        },
+        "Client Name": {
+          "type": ["string", "null"]
+        },
+        "URL": {
+          "type": ["string", "null"]
+        },
+        "Client OS": {
+          "type": ["string", "null"]
         }
       }
     },

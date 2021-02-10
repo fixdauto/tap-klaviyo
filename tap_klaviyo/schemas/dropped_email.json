@@ -24,7 +24,23 @@
     },
     "event_properties": {
       "type": "object",
-      "properties": {}
+      "properties": {
+        "Campaign Name": {
+          "type": "string"
+        },
+        "$flow": {
+          "type": "string"
+        },
+        "Subject": {
+          "type": "string"
+        },
+        "$event_id": {
+          "type": "string"
+        },
+        "Email Domain": {
+          "type": "string"
+        }
+      }
     },
     "person": {
       "type": "object",
