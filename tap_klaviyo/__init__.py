@@ -5,28 +5,38 @@ import os
 import sys
 import singer
 from singer import metadata
-from tap_klaviyo.utils import get_incremental_pull, get_full_pulls, get_all_pages
+from tap_klaviyo.utils import get_incremental_pull, get_full_pulls, get_all_pages, get_incremental_pull_additional_properties
 
 ENDPOINTS = {
     'global_exclusions': 'https://a.klaviyo.com/api/v1/people/exclusions',
     'lists': 'https://a.klaviyo.com/api/v1/lists',
     'metrics': 'https://a.klaviyo.com/api/v1/metrics',
-    'metric': 'https://a.klaviyo.com/api/v1/metric/',
+    'metric': 'https://a.klaviyo.com/api/v1/metric/'
 }
 
 EVENT_MAPPINGS = {
-    "Received Email": "receive",
-    "Clicked Email": "click",
-    "Opened Email": "open",
-    "Bounced Email": "bounce",
-    "Unsubscribed": "unsubscribe",
-    "Marked Email as Spam": "mark_as_spam",
-    "Unsubscribed from List": "unsub_list",
-    "Subscribed to List": "subscribe_list",
-    "Updated Email Preferences": "update_email_preferences",
-    "Dropped Email": "dropped_email",
+    # "Received Email": "receive",
+    # "Clicked Email": "click",
+    # "Opened Email": "open",
+    # "Bounced Email": "bounce",
+    # "Unsubscribed": "unsubscribe",
+    # "Marked Email as Spam": "mark_as_spam",
+    # "Unsubscribed from List": "unsub_list",
+    # "Subscribed to List": "subscribe_list",
+    # "Updated Email Preferences": "update_email_preferences",
+    # "Dropped Email": "dropped_email",
     "Placed Order": "placed_order",
-    "Cancelled Order": "cancelled_order"
+    # "Cancelled Order": "cancelled_order"
+}
+
+ADDITIONAL_PROPERTIES = {
+    "placed_order": {
+        "attributed_flow": "$attributed_flow"
+    }
+}
+
+ADDITIONAL_PROPERTIES_KEYS = {
+    "attributed_flow"
 }
 
 logger = singer.get_logger()
@@ -96,7 +106,7 @@ def load_schema(name):
 def do_sync(config, state, catalog):
     api_key = config['api_key']
     start_date = config['start_date'] if 'start_date' in config else None
-    logger.info(state)
+    # end_date = config['end_date'] if 'end_date' in config else None
     stream_ids_to_sync = set()
 
     for stream in catalog.get('streams'):
@@ -116,6 +126,9 @@ def do_sync(config, state, catalog):
         if stream['stream'] in EVENT_MAPPINGS.values():
             get_incremental_pull(stream, ENDPOINTS['metric'], state,
                                  api_key, start_date)
+        elif stream['stream'] in ADDITIONAL_PROPERTIES_KEYS:
+            get_incremental_pull_additional_properties(stream, ENDPOINTS['metric'], state,
+                                 api_key, start_date)
         else:
             get_full_pulls(stream, ENDPOINTS[stream['stream']], api_key)
 
@@ -126,7 +139,6 @@ def get_available_metrics(api_key):
                                   ENDPOINTS['metrics'], api_key):
         for metric in response.json().get('data'):
             if metric['name'] in EVENT_MAPPINGS:
-                logger.info(metric)
                 metric_streams.append(
                     Stream(
                         stream=EVENT_MAPPINGS[metric['name']],
@@ -135,7 +147,17 @@ def get_available_metrics(api_key):
                         replication_method='INCREMENTAL'
                     )
                 )
-    logger.info(metric_streams)
+                if EVENT_MAPPINGS[metric['name']] in ADDITIONAL_PROPERTIES:
+                     for additional_property in ADDITIONAL_PROPERTIES[EVENT_MAPPINGS[metric['name']]]:
+                        logger.info("attributed endpoint " + additional_property)
+                        metric_streams.append(
+                            Stream(
+                                stream=additional_property,
+                                tap_stream_id=metric['id'],
+                                key_properties="id",
+                                replication_method='INCREMENTAL'
+                            )
+                        )
     return metric_streams
 
 
@@ -150,7 +172,6 @@ def do_discover(api_key):
 
 def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-
     if args.discover:
         do_discover(args.config['api_key'])
 

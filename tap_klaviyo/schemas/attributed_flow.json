@@ -1,0 +1,9 @@
+{
+  "$id": "https://example.com/person.schema.json",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string"
+    }
+  }
+}

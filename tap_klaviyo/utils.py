@@ -3,8 +3,10 @@ import time
 import singer
 from singer import metrics
 import requests
+import hashlib
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+DATETIME_FAP = "%Y-%m-%d"
 
 
 session = requests.Session()
@@ -15,11 +17,16 @@ def dt_to_ts(dt):
     return int(time.mktime(datetime.datetime.strptime(
         dt, DATETIME_FMT).timetuple()))
 
+def dt(dt):
+    return datetime.datetime.strptime(
+        dt, DATETIME_FMT)
 
 def ts_to_dt(ts):
     return datetime.datetime.fromtimestamp(
         int(ts)).strftime(DATETIME_FMT)
 
+def dt_to_fds(dt, format_string):
+    return datetime.datetime.strptime(dt, DATETIME_FMT).strftime(format_string)
 
 def update_state(state, entity, dt):
     if dt is None:
@@ -46,6 +53,15 @@ def get_starting_point(stream, state, start_date):
     else:
         return None
 
+def get_starting_point_additional_properties(stream, state, start_date):
+    if stream['stream'] in state['bookmarks'] and \
+                    state['bookmarks'][stream['stream']] is not None:
+        return state['bookmarks'][stream['stream']]['since']
+    elif start_date:
+        return dt(start_date)
+    else:
+        return None
+
 
 def get_latest_event_time(events):
     return ts_to_dt(int(events[-1]['timestamp'])) if len(events) else None
@@ -66,6 +82,19 @@ def get_all_using_next(stream, url, api_key, since=None):
         yield r
         if 'next' in r.json() and r.json()['next']:
             since = r.json()['next']
+        else:
+            break
+def get_all_additional_properties_using_next(stream, url, api_key, since=None):
+    while True:
+        logger.info(since)
+        r = authed_get(stream, url, {'api_key': api_key,
+                                     'start_date': since.strftime(DATETIME_FAP),
+                                     'end_date': since.strftime(DATETIME_FAP),
+                                     'by' : '$'+stream,
+                                     })
+        yield r
+        if since < datetime.datetime.now():
+            since = since + datetime.timedelta(days=1)
         else:
             break
 
@@ -100,6 +129,35 @@ def get_incremental_pull(stream, endpoint, state, api_key, start_date):
                 singer.write_records(stream['stream'], events)
 
                 update_state(state, stream['stream'], get_latest_event_time(events))
+                singer.write_state(state)
+
+    return state
+
+def get_incremental_pull_additional_properties(stream, endpoint, state, api_key, start_date):
+    latest_event_time = get_starting_point_additional_properties(stream, state, start_date)
+    with metrics.record_counter(stream['stream']) as counter:
+        url = '{}{}/export'.format(
+            endpoint,
+            stream['tap_stream_id']
+        )
+        for response in get_all_additional_properties_using_next(
+                stream['stream'], url, api_key,
+                latest_event_time):
+            events = response.json()
+            logger.info(response.json())
+            if events:
+                # latest_date = None
+                for result in events.get('results'):
+                    result['id'] = events.get('id')
+                    result['data'][0]['segment'] = result['segment']
+                    result['data'][0]['metric'] = events['metric']
+                    logger.info(result.get('data'))
+                    counter.increment(1)
+                    hash_object = hashlib.sha224((result['segment']+result['data'][0]['date']).encode('utf-8'))
+                    result['data'][0]['id'] = hash_object.hexdigest()
+
+                    singer.write_records(stream['stream'], result.get('data'))
+                update_state(state, stream['stream'], datetime.date.today())
                 singer.write_state(state)
 
     return state
