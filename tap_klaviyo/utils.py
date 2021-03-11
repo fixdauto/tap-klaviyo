@@ -56,7 +56,7 @@ def get_starting_point(stream, state, start_date):
 def get_starting_point_additional_properties(stream, state, start_date):
     if stream['stream'] in state['bookmarks'] and \
                     state['bookmarks'][stream['stream']] is not None:
-        return state['bookmarks'][stream['stream']]['since']
+        return datetime.datetime.strptime(state['bookmarks'][stream['stream']]['since'], DATETIME_FMT)
     elif start_date:
         return dt(start_date)
     else:
@@ -86,14 +86,13 @@ def get_all_using_next(stream, url, api_key, since=None):
             break
 def get_all_additional_properties_using_next(stream, url, api_key, since=None):
     while True:
-        logger.info(since)
         r = authed_get(stream, url, {'api_key': api_key,
                                      'start_date': since.strftime(DATETIME_FAP),
                                      'end_date': since.strftime(DATETIME_FAP),
                                      'by' : '$'+stream,
                                      })
         yield r
-        if since < datetime.datetime.now():
+        if since < datetime.datetime.now() - datetime.timedelta(days=1):
             since = since + datetime.timedelta(days=1)
         else:
             break
@@ -112,7 +111,6 @@ def get_all_pages(source, url, api_key):
 
 def get_incremental_pull(stream, endpoint, state, api_key, start_date):
     latest_event_time = get_starting_point(stream, state, start_date)
-
     with metrics.record_counter(stream['stream']) as counter:
         url = '{}{}/timeline'.format(
             endpoint,
@@ -144,20 +142,18 @@ def get_incremental_pull_additional_properties(stream, endpoint, state, api_key,
                 stream['stream'], url, api_key,
                 latest_event_time):
             events = response.json()
-            logger.info(response.json())
             if events:
                 # latest_date = None
                 for result in events.get('results'):
                     result['id'] = events.get('id')
                     result['data'][0]['segment'] = result['segment']
                     result['data'][0]['metric'] = events['metric']
-                    logger.info(result.get('data'))
                     counter.increment(1)
                     hash_object = hashlib.sha224((result['segment']+result['data'][0]['date']).encode('utf-8'))
                     result['data'][0]['id'] = hash_object.hexdigest()
 
                     singer.write_records(stream['stream'], result.get('data'))
-                update_state(state, stream['stream'], datetime.date.today())
+                update_state(state, stream['stream'], datetime.datetime.today().strftime(DATETIME_FMT))
                 singer.write_state(state)
 
     return state
