@@ -86,10 +86,12 @@ def get_all_using_next(stream, url, api_key, since=None):
             break
 def get_all_additional_properties_using_next(stream, url, api_key, since=None):
     while True:
+        split_stream = stream.split("-")
         r = authed_get(stream, url, {'api_key': api_key,
                                      'start_date': since.strftime(DATETIME_FAP),
                                      'end_date': since.strftime(DATETIME_FAP),
-                                     'by' : '$'+stream,
+                                     'by' : '$'+split_stream[0],
+                                     'measurement' :  split_stream[1]
                                      })
         yield r
         if since < datetime.datetime.now() - datetime.timedelta(days=1):

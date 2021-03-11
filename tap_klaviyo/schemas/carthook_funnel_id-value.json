@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string"
+    },
+    "segment": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "integer"
+    },
+    "values": {
+      "type": "array"
+    },
+    "id": {
+      "type": "string"
+    },
+    "metric": {
+      "type": "object",
+      "properties": {
+        "updated": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
