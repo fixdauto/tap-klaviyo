@@ -31,18 +31,18 @@ EVENT_MAPPINGS = {
 
 ADDITIONAL_PROPERTIES = {
     "placed_order": {
-        "attributed_flow-value",
-        "attributed_flow-count",
-        "carthook_funnel_id-value",
-        "carthook_funnel_id-count",
+        "attributed_flow_value",
+        "attributed_flow_count",
+        "carthook_funnel_id_value",
+        "carthook_funnel_id_count",
     }
 }
 
 ADDITIONAL_PROPERTIES_KEYS = {
-    "attributed_flow-value",
-    "attributed_flow-count",
-    "carthook_funnel_id-value",
-    "carthook_funnel_id-count"
+    "attributed_flow_value",
+    "attributed_flow_count",
+    "carthook_funnel_id_value",
+    "carthook_funnel_id_count"
 }
 
 logger = singer.get_logger()
