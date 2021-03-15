@@ -86,7 +86,7 @@ def get_all_using_next(stream, url, api_key, since=None):
             break
 def get_all_additional_properties_using_next(stream, url, api_key, since=None):
     while True:
-        split_stream = stream.split("-")
+        split_stream = stream.rsplit("_",1)
         r = authed_get(stream, url, {'api_key': api_key,
                                      'start_date': since.strftime(DATETIME_FAP),
                                      'end_date': since.strftime(DATETIME_FAP),
