@@ -11,7 +11,9 @@ ENDPOINTS = {
     'global_exclusions': 'https://a.klaviyo.com/api/v1/people/exclusions',
     'lists': 'https://a.klaviyo.com/api/v1/lists',
     'metrics': 'https://a.klaviyo.com/api/v1/metrics',
-    'metric': 'https://a.klaviyo.com/api/v1/metric/'
+    'metric': 'https://a.klaviyo.com/api/v1/metric/',
+    'list_members': 'https://a.klaviyo.com/api/v2/group/{list_id}/members/all'
+
 }
 
 EVENT_MAPPINGS = {
@@ -49,12 +51,14 @@ logger = singer.get_logger()
 
 
 class Stream(object):
-    def __init__(self, stream, tap_stream_id, key_properties, replication_method):
+    def __init__(self, stream, tap_stream_id, key_properties, replication_method, puller):
         self.stream = stream
         self.tap_stream_id = tap_stream_id
         self.key_properties = key_properties
         self.replication_method = replication_method
         self.metadata = []
+        self.puller = puller
+
 
     def to_catalog_dict(self):
         schema = load_schema(self.stream)
@@ -98,7 +102,14 @@ LISTS = Stream(
     'FULL_TABLE'
 )
 
-FULL_STREAMS = [GLOBAL_EXCLUSIONS, LISTS]
+LIST_MEMBERS = Stream(
+    'list_members',
+    'list_members',
+    'email',
+    'full'
+)
+
+FULL_STREAMS = [GLOBAL_EXCLUSIONS, LISTS, LIST_MEMBERS]
 
 
 def get_abs_path(path):
@@ -111,6 +122,7 @@ def load_schema(name):
 
 def do_sync(config, state, catalog):
     api_key = config['api_key']
+    list_ids = config.get('list_ids')
     start_date = config['start_date'] if 'start_date' in config else None
     # end_date = config['end_date'] if 'end_date' in config else None
     stream_ids_to_sync = set()
@@ -135,6 +147,15 @@ def do_sync(config, state, catalog):
         elif stream['stream'] in ADDITIONAL_PROPERTIES_KEYS:
             get_incremental_pull_additional_properties(stream, ENDPOINTS['metric'], state,
                                  api_key, start_date)
+        elif stream['stream'] == 'list_members':
+            if list_ids:
+                get_full_pulls(stream, ENDPOINTS[stream['stream']], api_key, list_ids)
+            else:
+                raise ListMemberStreamException(
+                    'A list of Klaviyo List IDs must be specified in the client tap '
+                    'config if extracting list members. Check out the Untuckit Klaviyo '
+                    'tap for reference')
+
         else:
             get_full_pulls(stream, ENDPOINTS[stream['stream']], api_key)
 

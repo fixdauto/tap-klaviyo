@@ -110,6 +110,30 @@ def get_all_pages(source, url, api_key):
         else:
             break
 
+def get_list_members(url, api_key, id):
+    marker = None
+    while True:
+        r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
+                                                                'marker': marker})
+        response = r.json()
+        records = hydrate_record_with_list_id(response.get('records'), id)
+        yield records
+        marker = response.get('marker')
+        if not marker:
+            break
+
+def hydrate_record_with_list_id(records, list_id):
+    """
+    Args:
+        records (array [JSON]):
+        list_id (str):
+    Returns:
+        array of records, with the list_id appended to each record
+    """
+    for record in records:
+        record['list_id'] = list_id
+
+    return records
 
 def get_incremental_pull(stream, endpoint, state, api_key, start_date):
     latest_event_time = get_starting_point(stream, state, start_date)
