@@ -1,0 +1,12 @@
+*/__pycache__/
+
+build/
+dist/
+venv/
+.idea/
+
+*.egg-info
+
+config.json
+catalog.json
+state.json
