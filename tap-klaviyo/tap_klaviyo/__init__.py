@@ -3,8 +3,8 @@
 import json
 import os
 import singer
-
-from tap_klaviyo.utils import get_incremental_pull, get_full_pulls, get_all_pages
+from singer import metadata
+from tap_klaviyo.utils import get_incremental_pull, get_full_pulls, get_all_pages, get_incremental_pull_additional_properties
 
 ENDPOINTS = {
     'global_exclusions': 'https://a.klaviyo.com/api/v1/people/exclusions',
@@ -17,7 +17,6 @@ ENDPOINTS = {
     'list_members': 'https://a.klaviyo.com/api/v2/group/{list_id}/members/all'
 }
 
-# listing of incremental streams
 EVENT_MAPPINGS = {
     "Received Email": "receive",
     "Clicked Email": "click",
@@ -29,12 +28,13 @@ EVENT_MAPPINGS = {
     "Subscribed to List": "subscribe_list",
     "Updated Email Preferences": "update_email_preferences",
     "Dropped Email": "dropped_email",
+    "Placed Order": "placed_order",
+    "Cancelled Order": "cancelled_order"
 }
 
 
 class ListMemberStreamException(Exception):
     pass
-
 
 class Stream(object):
     def __init__(self, stream, tap_stream_id, key_properties, puller):
@@ -42,13 +42,31 @@ class Stream(object):
         self.tap_stream_id = tap_stream_id
         self.key_properties = key_properties
         self.puller = puller
+        self.metadata = []
 
     def to_catalog_dict(self):
+        schema = load_schema(self.stream)
+
+        # self.metadata.append({
+        #     'breadcrumb': (),
+        #     'metadata': {
+        #         'table-key-properties': self.key_properties,
+        #         'forced-replication-method': self.replication_method
+        #     }
+        # })
+
+        # for k in schema['properties']:
+        #     self.metadata.append({
+        #         'breadcrumb': ('properties', k),
+        #         'metadata': { 'inclusion': 'automatic' }
+        #     })
+
         return {
             'stream': self.stream,
             'tap_stream_id': self.tap_stream_id,
             'key_properties': self.key_properties,
-            'schema': load_schema(self.stream)
+            'schema': load_schema(self.stream),
+            'metadata': self.metadata
         }
 
 
@@ -65,7 +83,7 @@ GLOBAL_EXCLUSIONS = Stream(
 LISTS = Stream(
     'lists',
     'lists',
-    'uuid',
+    'id',
     'lists'
 )
 
@@ -92,10 +110,14 @@ def do_sync(config, state, catalog):
     list_ids = config.get('list_ids')
     start_date = config['start_date'] if 'start_date' in config else None
 
-    selected_streams = [stream for stream in catalog['streams']
-                        if stream.get('schema').get('selected') is True]
-
-    for stream in selected_streams:
+    for stream in catalog.get('streams'):
+        mdata = metadata.to_map(stream['metadata'])
+        if metadata.get(mdata, (), 'selected'):
+            stream_ids_to_sync.add(stream['tap_stream_id'])
+    
+    for stream in catalog['streams']:
+        if stream['tap_stream_id'] not in stream_ids_to_sync:
+            continue
         singer.write_schema(
             stream['stream'],
             stream['schema'],
@@ -127,10 +149,20 @@ def get_available_metrics(api_key):
                         stream=EVENT_MAPPINGS[metric['name']],
                         tap_stream_id=metric['id'],
                         key_properties="id",
-                        puller='incremental'
+                        puller='INCREMENTAL'
                     )
                 )
-
+                if EVENT_MAPPINGS[metric['name']] in ADDITIONAL_PROPERTIES:
+                     for additional_property in ADDITIONAL_PROPERTIES[EVENT_MAPPINGS[metric['name']]]:
+                        logger.info("attributed endpoint " + additional_property)
+                        metric_streams.append(
+                            Stream(
+                                stream=additional_property,
+                                tap_stream_id=metric['id'],
+                                key_properties="id",
+                                puller='INCREMENTAL'
+                            )
+                        )
     return metric_streams
 
 
@@ -150,10 +182,9 @@ def main():
 
     if args.discover:
         do_discover(args.config['api_key'])
-        exit(1)
 
     else:
-        catalog = args.properties if args.properties else discover(
+        catalog = args.catalog.to_dict() if args.catalog else discover(
             args.config['api_key'])
         state = args.state if args.state else {"bookmarks": {}}
         do_sync(args.config, state, catalog)

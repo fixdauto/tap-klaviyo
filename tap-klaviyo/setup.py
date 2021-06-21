@@ -3,14 +3,14 @@
 from setuptools import setup
 
 setup(name='tap-klaviyo',
-      version='0.0.1',
+      version='0.1.1',
       description='Singer.io tap for extracting data from the Klaviyo API',
       author='Stitch',
       url='http://singer.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       py_modules=['tap_klaviyo'],
-      install_requires=['singer-python==3.2.1',
-                        'requests==2.13.0',
+      install_requires=['singer-python==5.8.1',
+                        'requests==2.20.0',
                         'backoff',
                         'ipdb'],
       entry_points='''
@@ -33,6 +33,8 @@ setup(name='tap-klaviyo',
                 "subscribe_list.json",
                 "unsub_list.json",
                 "update_email_preferences.json",
+                "cancelled_order.json"
+                "placed_order.json"
               ]
          },
       include_package_data=True
