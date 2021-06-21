@@ -3,7 +3,9 @@ import time
 import singer
 from singer import metrics
 import requests
+import hashlib
 import backoff
+import time
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FAP = "%Y-%m-%d"
@@ -76,9 +78,7 @@ def authed_get(source, url, params):
     with metrics.http_request_timer(source) as timer:
         resp = session.request(method='get', url=url, params=params)
         timer.tags[metrics.Tag.http_status_code] = resp.status_code
-
-    resp.raise_for_status()
-    return resp
+        return resp
 
 
 def get_all_using_next(stream, url, api_key, since=None):
@@ -118,17 +118,26 @@ def get_all_pages(source, url, api_key):
         else:
             break
 
-
 def get_list_members(url, api_key, id):
     marker = None
     while True:
         r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
                                                                 'marker': marker})
         response = r.json()
-        records = hydrate_record_with_list_id(response.get('records'), id)
-        yield records
-        marker = response.get('marker')
-        if not marker:
+        if 'detail' in response.keys() and 'throttled' in response.get('detail'):
+            time.sleep(40)
+            continue
+        curr_records = response.get('records')
+        if curr_records is not None:
+            records = hydrate_record_with_list_id(curr_records, id)
+            yield records
+            marker = response.get('marker')
+            if not marker:
+                break
+        else:
+            logger.info("reached point where curr_records is none")
+            logger.info(f"id is: {id}")
+            logger.info(f"response is: {response}")
             break
 
 
