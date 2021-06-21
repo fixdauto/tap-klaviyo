@@ -32,23 +32,6 @@ EVENT_MAPPINGS = {
     "Cancelled Order": "cancelled_order"
 }
 
-ADDITIONAL_PROPERTIES = {
-    "placed_order": {
-        "attributed_flow_value",
-        "attributed_flow_count",
-        "carthook_funnel_id_value",
-        "carthook_funnel_id_count",
-    }
-}
-
-ADDITIONAL_PROPERTIES_KEYS = {
-    "attributed_flow_value",
-    "attributed_flow_count",
-    "carthook_funnel_id_value",
-    "carthook_funnel_id_count"
-}
-
-logger = singer.get_logger()
 
 class ListMemberStreamException(Exception):
     pass
@@ -126,7 +109,6 @@ def do_sync(config, state, catalog):
     api_key = config['api_key']
     list_ids = config.get('list_ids')
     start_date = config['start_date'] if 'start_date' in config else None
-    stream_ids_to_sync = set()
 
     for stream in catalog.get('streams'):
         mdata = metadata.to_map(stream['metadata'])
@@ -152,9 +134,6 @@ def do_sync(config, state, catalog):
                     'A list of Klaviyo List IDs must be specified in the client tap '
                     'config if extracting list members. Check out the Untuckit Klaviyo '
                     'tap for reference')
-        elif stream['stream'] in ADDITIONAL_PROPERTIES_KEYS:
-            get_incremental_pull_additional_properties(stream, ENDPOINTS['metric'], state,
-                                 api_key, start_date)
         else:
             get_full_pulls(stream, ENDPOINTS[stream['stream']], api_key)
 
