@@ -148,6 +148,34 @@ def get_incremental_pull(stream, endpoint, state, api_key, start_date):
     return state
 
 
+def get_incremental_pull_additional_properties(stream, endpoint, state, api_key, start_date):
+    latest_event_time = get_starting_point_additional_properties(stream, state, start_date)
+    with metrics.record_counter(stream['stream']) as counter:
+        url = '{}{}/export'.format(
+            endpoint,
+            stream['tap_stream_id']
+        )
+        for response in get_all_additional_properties_using_next(
+                stream['stream'], url, api_key,
+                latest_event_time):
+            events = response.json()
+            if events:
+                # latest_date = None
+                for result in events.get('results'):
+                    result['id'] = events.get('id')
+                    result['data'][0]['segment'] = result['segment']
+                    result['data'][0]['metric'] = events['metric']
+                    counter.increment(1)
+                    hash_object = hashlib.sha224((result['segment']+result['data'][0]['date']).encode('utf-8'))
+                    result['data'][0]['id'] = hash_object.hexdigest()
+
+                    singer.write_records(stream['stream'], result.get('data'))
+                update_state(state, stream['stream'], datetime.datetime.today().strftime(DATETIME_FMT))
+                singer.write_state(state)
+
+    return state
+
+
 def get_full_pulls(resource, endpoint, api_key, list_ids=None):
     with metrics.record_counter(resource['stream']) as counter:
         if resource['stream'] == 'list_members':
