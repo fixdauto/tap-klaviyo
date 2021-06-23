@@ -51,6 +51,14 @@ def get_starting_point(stream, state, start_date):
     else:
         return None
 
+def get_starting_point_additional_properties(stream, state, start_date):
+    if stream['stream'] in state['bookmarks'] and \
+                    state['bookmarks'][stream['stream']] is not None:
+        return datetime.datetime.strptime(state['bookmarks'][stream['stream']]['since'], DATETIME_FMT)
+    elif start_date:
+        return dt(start_date)
+    else:
+        return None
 
 def get_latest_event_time(events):
     return ts_to_dt(int(events[-1]['timestamp'])) if len(events) else None
@@ -75,6 +83,20 @@ def get_all_using_next(stream, url, api_key, since=None):
         else:
             break
 
+def get_all_additional_properties_using_next(stream, url, api_key, since=None):
+    while True:
+        split_stream = stream.rsplit("_",1)
+        r = authed_get(stream, url, {'api_key': api_key,
+                                     'start_date': since.strftime(DATETIME_FAP),
+                                     'end_date': since.strftime(DATETIME_FAP),
+                                     'by' : '$'+split_stream[0],
+                                     'measurement' :  split_stream[1]
+                                     })
+        yield r
+        if since < datetime.datetime.now() - datetime.timedelta(days=1):
+            since = since + datetime.timedelta(days=1)
+        else:
+            break
 
 def get_all_pages(source, url, api_key):
     page = 0
