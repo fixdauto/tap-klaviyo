@@ -126,6 +126,7 @@ def do_sync(config, state, catalog):
     api_key = config['api_key']
     list_ids = config.get('list_ids')
     start_date = config['start_date'] if 'start_date' in config else None
+    stream_ids_to_sync = set()
 
     for stream in catalog.get('streams'):
         mdata = metadata.to_map(stream['metadata'])
