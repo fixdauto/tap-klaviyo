@@ -32,6 +32,23 @@ EVENT_MAPPINGS = {
     "Cancelled Order": "cancelled_order"
 }
 
+ADDITIONAL_PROPERTIES = {
+    "placed_order": {
+        "attributed_flow_value",
+        "attributed_flow_count",
+        "carthook_funnel_id_value",
+        "carthook_funnel_id_count",
+    }
+}
+
+ADDITIONAL_PROPERTIES_KEYS = {
+    "attributed_flow_value",
+    "attributed_flow_count",
+    "carthook_funnel_id_value",
+    "carthook_funnel_id_count"
+}
+
+logger = singer.get_logger()
 
 class ListMemberStreamException(Exception):
     pass
