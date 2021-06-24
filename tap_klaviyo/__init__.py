@@ -144,6 +144,9 @@ def do_sync(config, state, catalog):
         if stream['stream'] in EVENT_MAPPINGS.values():
             get_incremental_pull(stream, ENDPOINTS['metric'], state,
                                  api_key, start_date)
+        elif stream['stream'] in ADDITIONAL_PROPERTIES_KEYS:
+            get_incremental_pull_additional_properties(stream, ENDPOINTS['metric'], state,
+                                 api_key, start_date)
         elif stream['stream'] == 'list_members':
             if list_ids:
                 get_full_pulls(stream, ENDPOINTS[stream['stream']], api_key, list_ids)
