@@ -8,6 +8,7 @@ import backoff
 import time
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+DATETIME_FAP = "%Y-%m-%d"
 
 
 session = requests.Session()
@@ -18,10 +19,17 @@ def dt_to_ts(dt):
     return int(time.mktime(datetime.datetime.strptime(
         dt, DATETIME_FMT).timetuple()))
 
+def dt(dt):
+    return datetime.datetime.strptime(
+        dt, DATETIME_FMT)
+
 
 def ts_to_dt(ts):
     return datetime.datetime.fromtimestamp(
         int(ts)).strftime(DATETIME_FMT)
+
+def dt_to_fds(dt, format_string):
+    return datetime.datetime.strptime(dt, DATETIME_FMT).strftime(format_string)
 
 
 def update_state(state, entity, dt):
@@ -60,6 +68,7 @@ def get_starting_point_additional_properties(stream, state, start_date):
     else:
         return None
 
+
 def get_latest_event_time(events):
     return ts_to_dt(int(events[-1]['timestamp'])) if len(events) else None
 
@@ -97,6 +106,7 @@ def get_all_additional_properties_using_next(stream, url, api_key, since=None):
             since = since + datetime.timedelta(days=1)
         else:
             break
+
 
 def get_all_pages(source, url, api_key):
     page = 0
@@ -169,7 +179,6 @@ def get_incremental_pull(stream, endpoint, state, api_key, start_date):
 
     return state
 
-
 def get_incremental_pull_additional_properties(stream, endpoint, state, api_key, start_date):
     latest_event_time = get_starting_point_additional_properties(stream, state, start_date)
     with metrics.record_counter(stream['stream']) as counter:
@@ -196,7 +205,6 @@ def get_incremental_pull_additional_properties(stream, endpoint, state, api_key,
                 singer.write_state(state)
 
     return state
-
 
 def get_full_pulls(resource, endpoint, api_key, list_ids=None):
     with metrics.record_counter(resource['stream']) as counter:
