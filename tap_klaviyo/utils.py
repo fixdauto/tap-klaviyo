@@ -9,7 +9,7 @@ import time
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FAP = "%Y-%m-%d"
-
+list_member_dict = {}
 
 session = requests.Session()
 logger = singer.get_logger()
@@ -118,16 +118,32 @@ def get_all_pages(source, url, api_key):
         else:
             break
 
+def list_members_request(url, api_key, id, marker):
+    r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
+                                                                'marker': marker})
+    return r.json()
+
+
 def get_list_members(url, api_key, id):
     marker = None
+    record_count = 0
     while True:
-        r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
-                                                                'marker': marker})
-        response = r.json()
+        response = list_members_request(url, api_key, id, marker)
+        logger.info(response)
         if 'detail' in response.keys() and 'throttled' in response.get('detail'):
-            time.sleep(40)
-            continue
+            logger.info("request was throttled, entering retry logic")
+            response = None
+            retryLimit = 5
+            retryCount = 0
+            while(response == None and retryCount < retryLimit):
+                retryCount+=1
+                time.sleep(40)
+                logger.info("on retry number: {r}".format(r=retryCount))
+                retry = list_members_request(url, api_key, id)
+                if 'detail' not in retry.keys() or 'throttled' not in retry.get('detail'):
+                    response = retry
         curr_records = response.get('records')
+        record_count += len(curr_records)
         if curr_records is not None:
             records = hydrate_record_with_list_id(curr_records, id)
             yield records
@@ -139,6 +155,9 @@ def get_list_members(url, api_key, id):
             logger.info(f"id is: {id}")
             logger.info(f"response is: {response}")
             break
+    list_member_dict[id] = record_count
+    record_count = 0
+
 
 
 def hydrate_record_with_list_id(records, list_id):
@@ -151,7 +170,6 @@ def hydrate_record_with_list_id(records, list_id):
     """
     for record in records:
         record['list_id'] = list_id
-
     return records
 
 
@@ -221,3 +239,4 @@ def get_full_pulls(resource, endpoint, api_key, list_ids=None):
                 if records:
                     counter.increment(len(records))
                     singer.write_records(resource['stream'], records)
+    logger.info(list_member_dict)
