@@ -143,7 +143,7 @@ def get_list_members(url, api_key, id):
             retryLimit = 5
             retryCount = 0
             while(response == None and retryCount < retryLimit):
-                retryCount+=1
+                retryCount += 1
                 time.sleep(40)
                 retry = list_members_request(url, api_key, id)
                 if 'detail' not in retry.keys() or 'throttled' not in retry.get('detail'):
