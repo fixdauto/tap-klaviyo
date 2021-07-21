@@ -9,7 +9,9 @@ This tap:
 - Pulls raw data from the [Klaviyo metrics API](https://www.klaviyo.com/docs/api/metrics)
 - Outputs the schema for each resource
 - Incrementally pulls data based on the input state for incremental endpoints
-- Updates full tables for global exclusions and lists endpoints
+- Updates full tables for global exclusions,lists, and list members* endpoints
+
+*In order to perform the initial state capture of the list members endpoints, the environment variable "has_initial_updates" must be set to "False" and after the initial run can be changed back to "True". This environment variable can be found in the CI/CD settings in our Gitlab Data42 project.
 
 ## Quick start
 

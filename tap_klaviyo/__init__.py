@@ -14,7 +14,9 @@ ENDPOINTS = {
     # to get individual metric data
     'metric': 'https://a.klaviyo.com/api/v1/metric/',
     # to get list members
-    'list_members': 'https://a.klaviyo.com/api/v2/group/{list_id}/members/all'
+    'list_members': 'https://a.klaviyo.com/api/v2/group/{list_id}/members/all',
+    # to get list info
+    'list_info': 'https://a.klaviyo.com/api/v2/list/{list_id}'
 }
 
 EVENT_MAPPINGS = {
