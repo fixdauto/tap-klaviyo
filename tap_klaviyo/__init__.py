@@ -90,12 +90,12 @@ class Stream(object):
 CREDENTIALS_KEYS = ["api_key"]
 REQUIRED_CONFIG_KEYS = ["start_date"] + CREDENTIALS_KEYS
 
-GLOBAL_EXCLUSIONS = Stream(
-    'global_exclusions',
-    'global_exclusions',
-    'email',
-    'full'
-)
+# GLOBAL_EXCLUSIONS = Stream(
+#     'global_exclusions',
+#     'global_exclusions',
+#     'email',
+#     'full'
+# )
 
 LISTS = Stream(
     'lists',
@@ -111,7 +111,7 @@ LIST_MEMBERS = Stream(
     'full'
 )
 
-FULL_STREAMS = [GLOBAL_EXCLUSIONS, LISTS, LIST_MEMBERS]
+FULL_STREAMS = [LISTS, LIST_MEMBERS]
 
 
 def get_abs_path(path):
