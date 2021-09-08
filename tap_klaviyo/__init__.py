@@ -28,25 +28,25 @@ EVENT_MAPPINGS = {
     "Subscribed to List": "subscribe_list",
     "Updated Email Preferences": "update_email_preferences",
     "Dropped Email": "dropped_email",
-    # "Placed Order": "placed_order",
-    # "Cancelled Order": "cancelled_order"
+    "Placed Order": "placed_order",
+    "Cancelled Order": "cancelled_order"
 }
 
-ADDITIONAL_PROPERTIES = {
-    "placed_order": {
-        "attributed_flow_value",
-        "attributed_flow_count",
-        "carthook_funnel_id_value",
-        "carthook_funnel_id_count",
-    }
-}
+# ADDITIONAL_PROPERTIES = {
+#     "placed_order": {
+#         "attributed_flow_value",
+#         "attributed_flow_count",
+#         "carthook_funnel_id_value",
+#         "carthook_funnel_id_count",
+#     }
+# }
 
-ADDITIONAL_PROPERTIES_KEYS = {
-    "attributed_flow_value",
-    "attributed_flow_count",
-    "carthook_funnel_id_value",
-    "carthook_funnel_id_count"
-}
+# ADDITIONAL_PROPERTIES_KEYS = {
+#     "attributed_flow_value",
+#     "attributed_flow_count",
+#     "carthook_funnel_id_value",
+#     "carthook_funnel_id_count"
+# }
 
 logger = singer.get_logger()
 
