@@ -127,7 +127,7 @@ def do_sync(config, state, catalog):
     list_ids = config.get('list_ids')
     start_date = config['start_date'] if 'start_date' in config else None
     stream_ids_to_sync = set()
-
+    logger.info('Did we get here??')
     for stream in catalog.get('streams'):
         mdata = metadata.to_map(stream['metadata'])
         if metadata.get(mdata, (), 'selected'):
