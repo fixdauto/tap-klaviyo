@@ -118,15 +118,26 @@ def get_all_pages(source, url, api_key):
         else:
             break
 
+def list_members_request(url, api_key, id, marker):
+    r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
+                                                                'marker': marker})
+    return r.json()
+
 def get_list_members(url, api_key, id):
     marker = None
     while True:
-        r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
-                                                                'marker': marker})
-        response = r.json()
+        response = list_members_request(url, api_key, id, marker)
         if 'detail' in response.keys() and 'throttled' in response.get('detail'):
-            time.sleep(40)
-            continue
+            logger.info("request was throttled, entering retry logic")
+            response = None
+            retryLimit = 5
+            retryCount = 0
+            while(response == None and retryCount < retryLimit):
+                retryCount += 1
+                time.sleep(40)
+                retry = list_members_request(url, api_key, id)
+                if 'detail' not in retry.keys() or 'throttled' not in retry.get('detail'):
+                    response = retry
         curr_records = response.get('records')
         if curr_records is not None:
             records = hydrate_record_with_list_id(curr_records, id)
