@@ -118,7 +118,7 @@ def get_all_pages(source, url, api_key):
         else:
             break
 
-def list_members_request(url, api_key, id, marker):
+def list_members_request(url, api_key, id, marker=None):
     r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
                                                                 'marker': marker})
     return r.json()
