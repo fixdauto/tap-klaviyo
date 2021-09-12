@@ -6,6 +6,7 @@ import requests
 import hashlib
 import backoff
 import time
+import random
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
 DATETIME_FAP = "%Y-%m-%d"
@@ -119,8 +120,12 @@ def get_all_pages(source, url, api_key):
             break
 
 def list_members_request(url, api_key, id, marker=None):
-    r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
+    time.sleep(0.01)
+    if(marker != None):
+        r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
                                                                 'marker': marker})
+    else:
+        r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key})
     return r.json()
 
 def get_list_members(url, api_key, id):
@@ -134,7 +139,8 @@ def get_list_members(url, api_key, id):
             retryCount = 0
             while(response == None and retryCount < retryLimit):
                 retryCount += 1
-                time.sleep(40)
+                #Klaviyo recommends exponential backoff time, may need to change/increase base value
+                time.sleep(3**retryCount+random.random())
                 retry = list_members_request(url, api_key, id)
                 if 'detail' not in retry.keys() or 'throttled' not in retry.get('detail'):
                     response = retry
