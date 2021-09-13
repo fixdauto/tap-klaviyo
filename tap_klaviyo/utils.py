@@ -120,28 +120,29 @@ def get_all_pages(source, url, api_key):
             break
 
 def list_members_request(url, api_key, id, marker=None):
-    time.sleep(0.01)
+    #Sleep timer between requests to avoid hitting Klaviyo's API rate limit
+    time.sleep(0.02)
     if(marker != None):
         r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
                                                                 'marker': marker})
     else:
         r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key})
-    return r.json()
+    return r
 
 def get_list_members(url, api_key, id):
     marker = None
     while True:
-        response = list_members_request(url, api_key, id, marker)
+        raw_response = list_members_request(url, api_key, id, marker)
+        response = raw_response.json()
         if 'detail' in response.keys() and 'throttled' in response.get('detail'):
-            logger.info("request was throttled, entering retry logic")
             response = None
             retryLimit = 5
             retryCount = 0
             while(response == None and retryCount < retryLimit):
                 retryCount += 1
-                #Klaviyo recommends exponential backoff time, may need to change/increase base value
-                time.sleep(3**retryCount+random.random())
-                retry = list_members_request(url, api_key, id)
+                #Dynamic sleep method uses the Retry-After header from the throttle response to set a sleep timer
+                time.sleep(int(raw_response.headers['Retry-After']))
+                retry = list_members_request(url, api_key, id).json()
                 if 'detail' not in retry.keys() or 'throttled' not in retry.get('detail'):
                     response = retry
         curr_records = response.get('records')
@@ -226,7 +227,9 @@ def get_incremental_pull_additional_properties(stream, endpoint, state, api_key,
 def get_full_pulls(resource, endpoint, api_key, list_ids=None):
     with metrics.record_counter(resource['stream']) as counter:
         if resource['stream'] == 'list_members':
+            time.sleep(0.02)
             for id in list_ids:
+                logger.info(f'id is: {id}')
                 for records in get_list_members(endpoint, api_key, id):
                     if records:
                         counter.increment(len(records))
