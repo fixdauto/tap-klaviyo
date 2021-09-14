@@ -121,7 +121,7 @@ def get_all_pages(source, url, api_key):
 
 def list_members_request(url, api_key, id, marker=None):
     #Sleep timer between requests to avoid hitting Klaviyo's API rate limit
-    time.sleep(0.02)
+    time.sleep(0.05)
     if(marker != None):
         r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
                                                                 'marker': marker})
@@ -141,7 +141,8 @@ def get_list_members(url, api_key, id):
             while(response == None and retryCount < retryLimit):
                 retryCount += 1
                 #Dynamic sleep method uses the Retry-After header from the throttle response to set a sleep timer
-                time.sleep(int(raw_response.headers['Retry-After']))
+                # time.sleep(int(raw_response.headers['Retry-After']))
+                time.sleep(600)
                 retry = list_members_request(url, api_key, id).json()
                 if 'detail' not in retry.keys() or 'throttled' not in retry.get('detail'):
                     response = retry
