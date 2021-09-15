@@ -121,7 +121,7 @@ def get_all_pages(source, url, api_key):
 
 def list_members_request(url, api_key, id, marker=None):
     #Sleep timer between requests to avoid hitting Klaviyo's API rate limit
-    time.sleep(0.1)
+    time.sleep(0.2)
     if(marker != None):
         r = authed_get('list_members', url.format(list_id=id), {'api_key': api_key,
                                                                 'marker': marker})
