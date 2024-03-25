@@ -1,0 +1,22 @@
+{
+    "properties": {
+        "Date": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Campaign Name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Count": {
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}
