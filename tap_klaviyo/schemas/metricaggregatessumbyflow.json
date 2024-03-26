@@ -1,0 +1,22 @@
+{
+    "properties": {
+        "Date": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Flow Name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Sum": {
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}

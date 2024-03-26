@@ -54,6 +54,15 @@ class TapKlaviyo(Tap):
             streams.ClickedEmailsByCampaignStream(self),
             streams.BouncedEmailsByCampaignStream(self),
             streams.UnsubscribedFromListByCampaignStream(self),
+            streams.PlacedOrdersByCampaignStream(self),
+            streams.CheckoutAmountsByCampaignStream(self),
+            streams.ReceivedEmailsByFlowStream(self),
+            streams.OpenedEmailsByFlowStream(self),
+            streams.ClickedEmailsByFlowStream(self),
+            streams.BouncedEmailsByFlowStream(self),
+            streams.UnsubscribedFromListByFlowStream(self),
+            streams.PlacedOrdersByFlowStream(self),
+            streams.CheckoutAmountsByFlowStream(self),
         ]
 
 

@@ -20,20 +20,21 @@ if t.TYPE_CHECKING:
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 
-class CampaignMetricAggregatesStream(KlaviyoStream):
+class MetricAggregatesStream(KlaviyoStream):
     """Set up to aggregate the last three months of performance"""
 
     name = "campaignmetricaggregates"
     path = "/metric-aggregates"
     primary_keys = ["campaign name", "date"]
     replication_key = ""
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     rest_method = "POST"
     records_jsonpath = "$[*]"
     next_page_token_jsonpath = "$[links][next]"
-    # Give a default aggregate to "count". Change this if you want a stream to use "sum_value"
-    # or "unique" instead
+    # Give a default aggregate to "count" and aggregate_by of "Campaign Name". Change
+    # this if you want a stream to use "sum_value" or "unique" instead, or if you want
+    # to aggregate by "attributed_flow"
     aggregate = "count"
+    aggregate_by = "Campaign Name"
 
     def prepare_request_payload(
         self,
@@ -68,18 +69,19 @@ class CampaignMetricAggregatesStream(KlaviyoStream):
                     # TO-DO: Figure out how to paginate so we don't need a huge page size
                     "page_size": 10000,
                     "timezone": "UTC",
-                    "by": ["Campaign Name"],
+                    "by": [f"{self.aggregate_by}"],
                     "measurements": [f"{self.aggregate}"],
                     "filter": [f"greater-or-equal(datetime,{start_date})",f"less-than(datetime,{end_date})"]
                 }
             }
         }
 
-class ReceivedEmailsByCampaignStream(CampaignMetricAggregatesStream):
+class ReceivedEmailsByCampaignStream(MetricAggregatesStream):
     """Define custom stream"""
 
     name = "receivedemailsbycampaign"
     metric_id = "H4DrTy"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -110,11 +112,12 @@ class ReceivedEmailsByCampaignStream(CampaignMetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class OpenedEmailsByCampaignStream(CampaignMetricAggregatesStream):
+class OpenedEmailsByCampaignStream(MetricAggregatesStream):
     """Define custom stream"""
 
     name = "openedemailsbycampaign"
     metric_id = "P4W93C"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -145,11 +148,12 @@ class OpenedEmailsByCampaignStream(CampaignMetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class ClickedEmailsByCampaignStream(CampaignMetricAggregatesStream):
+class ClickedEmailsByCampaignStream(MetricAggregatesStream):
     """Define custom stream"""
 
     name = "clickedemailsbycampaign"
     metric_id = "MYayva"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -180,11 +184,12 @@ class ClickedEmailsByCampaignStream(CampaignMetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class BouncedEmailsByCampaignStream(CampaignMetricAggregatesStream):
+class BouncedEmailsByCampaignStream(MetricAggregatesStream):
     """Define custom stream"""
 
     name = "bouncedemailsbycampaign"
     metric_id = "Ld4b2k"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -215,11 +220,12 @@ class BouncedEmailsByCampaignStream(CampaignMetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class UnsubscribedFromListByCampaignStream(CampaignMetricAggregatesStream):
+class UnsubscribedFromListByCampaignStream(MetricAggregatesStream):
     """Define custom stream"""
 
     name = "unsubscribedfromlistbycampaign"
     metric_id = "MvjPKh"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -250,81 +256,347 @@ class UnsubscribedFromListByCampaignStream(CampaignMetricAggregatesStream):
                         continue
                     yield transformed_record
 
-# TO-DO: Figure out correct metrics to track for Placed Orders and Revenue Earned, and
-# figure out why they don't capture Campaign Names
+class PlacedOrdersByCampaignStream(MetricAggregatesStream):
+    """Define custom stream"""
 
-# class PlacedOrderByCampaignStream(CampaignMetricAggregatesStream):
-#     """Define custom stream"""
-
-#     name = "placedorderbycampaign"
-#     metric_id = "T7RgqW"
-
+    name = "placedordersbycampaign"
+    metric_id = "T7RgqW"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
+    aggregate_by = "$attributed_message"
     
-#     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
-#         """Return a generator of record-type dictionary objects.
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
 
-#         Each record emitted should be a dictionary of property names to their values.
+        Each record emitted should be a dictionary of property names to their values.
 
-#         Args:
-#             context: Stream partition or context dictionary.
+        Args:
+            context: Stream partition or context dictionary.
 
-#         Yields:
-#             One item per (possibly processed) record in the API.
-#         """
-#         for record in self.request_records(context):
-#             for item in record['data']['attributes']['data']:
-#                 dimensions = item['dimensions'][0]
-#                 counts = item['measurements']['count']
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
                 
-#                 for date, count in zip(record['data']['attributes']['dates'], counts):
-#                     result = {
-#                         "Date": date,
-#                         "Campaign Name": dimensions,
-#                         "Count": count
-#                     }
-#                     if count == 0:
-#                         continue
-#                     transformed_record = self.post_process(result, context)
-#                     if transformed_record is None:
-#                         continue
-#                     yield transformed_record
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Campaign Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
 
-# class CheckoutAmountByCampaignStream(CampaignMetricAggregatesStream):
-#     """Define custom stream"""
+class CheckoutAmountsByCampaignStream(MetricAggregatesStream):
+    """Define custom stream"""
 
-#     name = "checkoutamountbycampaign"
-#     metric_id = "NZdCMH"
-#     aggregate = "sum_value"
-#     schema_filepath = SCHEMAS_DIR / "metricaggregatessumbycampaign.json"
+    name = "checkoutamountsbycampaign"
+    metric_id = "T7RgqW"
+    schema_filepath = SCHEMAS_DIR / "metricaggregatessumbycampaign.json"
+    aggregate = "sum_value"
+    aggregate_by = "$attributed_message"
     
-#     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
-#         """Return a generator of record-type dictionary objects.
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
 
-#         Each record emitted should be a dictionary of property names to their values.
+        Each record emitted should be a dictionary of property names to their values.
 
-#         Args:
-#             context: Stream partition or context dictionary.
+        Args:
+            context: Stream partition or context dictionary.
 
-#         Yields:
-#             One item per (possibly processed) record in the API.
-#         """
-#         for record in self.request_records(context):
-#             for item in record['data']['attributes']['data']:
-#                 dimensions = item['dimensions'][0]
-#                 sum_values = item['measurements']['sum_value']
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                sum_values = item['measurements']['sum_value']
                 
-#                 for date, sum_value in zip(record['data']['attributes']['dates'], sum_values):
-#                     result = {
-#                         "Date": date,
-#                         "Campaign Name": dimensions,
-#                         "Sum": sum_value
-#                     }
-#                     if sum_value == 0:
-#                         continue
-#                     transformed_record = self.post_process(result, context)
-#                     if transformed_record is None:
-#                         continue
-#                     yield transformed_record
+                for date, sum_value in zip(record['data']['attributes']['dates'], sum_values):
+                    result = {
+                        "Date": date,
+                        "Campaign Name": dimensions,
+                        "Sum": sum_value
+                    }
+                    if sum_value == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class ReceivedEmailsByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "receivedemailsbyflow"
+    metric_id = "H4DrTy"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate_by = "$flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
+                
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class OpenedEmailsByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "openedemailsbyflow"
+    metric_id = "P4W93C"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate_by = "$flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
+                
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class ClickedEmailsByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "clickedemailsbyflow"
+    metric_id = "MYayva"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate_by = "$flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
+                
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class BouncedEmailsByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "bouncedemailsbyflow"
+    metric_id = "Ld4b2k"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate_by = "$flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
+                
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class UnsubscribedFromListByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "unsubscribedfromlistbyflow"
+    metric_id = "MvjPKh"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate_by = "$flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
+                
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class PlacedOrdersByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "placedordersbyflow"
+    metric_id = "T7RgqW"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate_by = "$attributed_flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                counts = item['measurements']['count']
+                
+                for date, count in zip(record['data']['attributes']['dates'], counts):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Count": count
+                    }
+                    if count == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+class CheckoutAmountsByFlowStream(MetricAggregatesStream):
+    """Define custom stream"""
+
+    name = "checkoutamountsbyflow"
+    metric_id = "T7RgqW"
+    primary_keys = ["flow name", "date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatessumbyflow.json"
+    aggregate = "sum_value"
+    aggregate_by = "$attributed_flow"
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record['data']['attributes']['data']:
+                dimensions = item['dimensions'][0]
+                sum_values = item['measurements']['sum_value']
+                
+                for date, sum_value in zip(record['data']['attributes']['dates'], sum_values):
+                    result = {
+                        "Date": date,
+                        "Flow Name": dimensions,
+                        "Sum": sum_value
+                    }
+                    if sum_value == 0:
+                        continue
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
 
 class EventsStream(KlaviyoStream):
     """Define custom stream."""
