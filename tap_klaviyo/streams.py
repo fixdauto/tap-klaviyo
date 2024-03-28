@@ -118,6 +118,7 @@ class OpenedEmailsByCampaignStream(MetricAggregatesStream):
     name = "openedemailsbycampaign"
     metric_id = "P4W93C"
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
+    aggregate = "unique"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -133,7 +134,7 @@ class OpenedEmailsByCampaignStream(MetricAggregatesStream):
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
                 dimensions = item['dimensions'][0]
-                counts = item['measurements']['count']
+                counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
@@ -154,6 +155,7 @@ class ClickedEmailsByCampaignStream(MetricAggregatesStream):
     name = "clickedemailsbycampaign"
     metric_id = "MYayva"
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
+    aggregate = "unique"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -169,7 +171,7 @@ class ClickedEmailsByCampaignStream(MetricAggregatesStream):
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
                 dimensions = item['dimensions'][0]
-                counts = item['measurements']['count']
+                counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
@@ -220,11 +222,11 @@ class BouncedEmailsByCampaignStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class UnsubscribedFromListByCampaignStream(MetricAggregatesStream):
+class UnsubscribesByCampaignStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "unsubscribedfromlistbycampaign"
-    metric_id = "MvjPKh"
+    name = "unsubscribesbycampaign"
+    metric_id = "QqUYDV"
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbycampaign.json"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
@@ -376,6 +378,7 @@ class OpenedEmailsByFlowStream(MetricAggregatesStream):
     metric_id = "P4W93C"
     primary_keys = ["flow name", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate = "unique"
     aggregate_by = "$flow"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
@@ -392,7 +395,7 @@ class OpenedEmailsByFlowStream(MetricAggregatesStream):
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
                 dimensions = item['dimensions'][0]
-                counts = item['measurements']['count']
+                counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
@@ -414,6 +417,7 @@ class ClickedEmailsByFlowStream(MetricAggregatesStream):
     metric_id = "MYayva"
     primary_keys = ["flow name", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    aggregate = "unique"
     aggregate_by = "$flow"
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
@@ -430,7 +434,7 @@ class ClickedEmailsByFlowStream(MetricAggregatesStream):
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
                 dimensions = item['dimensions'][0]
-                counts = item['measurements']['count']
+                counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
@@ -483,11 +487,11 @@ class BouncedEmailsByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class UnsubscribedFromListByFlowStream(MetricAggregatesStream):
+class UnsubscribesByFlowStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "unsubscribedfromlistbyflow"
-    metric_id = "MvjPKh"
+    name = "unsubscribesbyflow"
+    metric_id = "QqUYDV"
     primary_keys = ["flow name", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate_by = "$flow"
