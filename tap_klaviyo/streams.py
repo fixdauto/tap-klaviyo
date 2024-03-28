@@ -25,7 +25,7 @@ class MetricAggregatesStream(KlaviyoStream):
 
     name = "campaignmetricaggregates"
     path = "/metric-aggregates"
-    primary_keys = ["campaign name", "date"]
+    primary_keys = ["CampaignName", "date"]
     replication_key = ""
     rest_method = "POST"
     records_jsonpath = "$[*]"
@@ -102,7 +102,7 @@ class ReceivedEmailsByCampaignStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -139,7 +139,7 @@ class OpenedEmailsByCampaignStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -176,7 +176,7 @@ class ClickedEmailsByCampaignStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -212,7 +212,7 @@ class BouncedEmailsByCampaignStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -248,7 +248,7 @@ class UnsubscribesByCampaignStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -285,7 +285,7 @@ class PlacedOrdersByCampaignStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -323,7 +323,7 @@ class CheckoutAmountsByCampaignStream(MetricAggregatesStream):
                 for date, sum_value in zip(record['data']['attributes']['dates'], sum_values):
                     result = {
                         "Date": date,
-                        "Campaign Name": dimensions,
+                        "CampaignName": dimensions,
                         "Sum": sum_value
                     }
                     if sum_value == 0:
@@ -338,7 +338,7 @@ class ReceivedEmailsByFlowStream(MetricAggregatesStream):
 
     name = "receivedemailsbyflow"
     metric_id = "H4DrTy"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate_by = "$flow"
     
@@ -361,7 +361,7 @@ class ReceivedEmailsByFlowStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -376,7 +376,7 @@ class OpenedEmailsByFlowStream(MetricAggregatesStream):
 
     name = "openedemailsbyflow"
     metric_id = "P4W93C"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate = "unique"
     aggregate_by = "$flow"
@@ -400,7 +400,7 @@ class OpenedEmailsByFlowStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -415,7 +415,7 @@ class ClickedEmailsByFlowStream(MetricAggregatesStream):
 
     name = "clickedemailsbyflow"
     metric_id = "MYayva"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate = "unique"
     aggregate_by = "$flow"
@@ -439,7 +439,7 @@ class ClickedEmailsByFlowStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -454,7 +454,7 @@ class BouncedEmailsByFlowStream(MetricAggregatesStream):
 
     name = "bouncedemailsbyflow"
     metric_id = "Ld4b2k"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate_by = "$flow"
     
@@ -477,7 +477,7 @@ class BouncedEmailsByFlowStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -492,7 +492,7 @@ class UnsubscribesByFlowStream(MetricAggregatesStream):
 
     name = "unsubscribesbyflow"
     metric_id = "QqUYDV"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate_by = "$flow"
     
@@ -515,7 +515,7 @@ class UnsubscribesByFlowStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -530,7 +530,7 @@ class PlacedOrdersByFlowStream(MetricAggregatesStream):
 
     name = "placedordersbyflow"
     metric_id = "T7RgqW"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
     aggregate_by = "$attributed_flow"
     
@@ -553,7 +553,7 @@ class PlacedOrdersByFlowStream(MetricAggregatesStream):
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Count": count
                     }
                     if count == 0:
@@ -568,7 +568,7 @@ class CheckoutAmountsByFlowStream(MetricAggregatesStream):
 
     name = "checkoutamountsbyflow"
     metric_id = "T7RgqW"
-    primary_keys = ["flow name", "date"]
+    primary_keys = ["FlowName", "date"]
     schema_filepath = SCHEMAS_DIR / "metricaggregatessumbyflow.json"
     aggregate = "sum_value"
     aggregate_by = "$attributed_flow"
@@ -592,7 +592,7 @@ class CheckoutAmountsByFlowStream(MetricAggregatesStream):
                 for date, sum_value in zip(record['data']['attributes']['dates'], sum_values):
                     result = {
                         "Date": date,
-                        "Flow Name": dimensions,
+                        "FlowName": dimensions,
                         "Sum": sum_value
                     }
                     if sum_value == 0:

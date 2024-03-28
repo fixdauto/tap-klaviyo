@@ -6,7 +6,7 @@
                 "null"
             ]
         },
-        "Campaign Name": {
+        "CampaignName": {
             "type": [
                 "string",
                 "null"
