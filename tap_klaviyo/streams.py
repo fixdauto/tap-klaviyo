@@ -55,9 +55,9 @@ class MetricAggregatesStream(KlaviyoStream):
                 next page of data.
         """
         now = datetime.now()
-        # TO-DO: Make the time period something that can be changed in the config
-        last_three_months = datetime.now() - relativedelta(months=6)
-        start_date = last_three_months.strftime("%Y-%m-%dT%H:%M:%S")
+        # Twelve months is as far back as you can go for the metric-aggregates endpoint
+        last_twelve_months = datetime.now() - relativedelta(months=12)
+        start_date = last_twelve_months.strftime("%Y-%m-%dT%H:%M:%S")
         end_date = now.strftime("%Y-%m-%dT%H:%M:%S")
         
         return {
