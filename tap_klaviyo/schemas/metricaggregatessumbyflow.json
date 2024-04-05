@@ -12,6 +12,12 @@
                 "null"
             ]
         },
+        "FlowMessage": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "Sum": {
             "type": [
                 "number",

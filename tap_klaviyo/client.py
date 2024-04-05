@@ -6,6 +6,7 @@ import typing as t
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qsl
+import logging
 
 from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.pagination import BaseHATEOASPaginator
@@ -38,7 +39,8 @@ class KlaviyoPaginator(BaseHATEOASPaginator):
 
     def get_next_url(self, response: requests.Response) -> str:
         data = response.json()
-        return data.get("links").get("next")  # type: ignore[no-any-return]
+        if data is not None and data.get("links") is not None:
+            return data.get("links").get("next")  # type: ignore[no-any-return]
 
 
 class KlaviyoStream(RESTStream):
