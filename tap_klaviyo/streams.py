@@ -821,6 +821,18 @@ class FlowsStream(KlaviyoStream):
         context["flow_id"] = record["id"]
 
         return super().get_child_context(record, context)  # type: ignore[no-any-return]
+    
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,  # noqa: ARG002
+    ) -> dict | None:
+        row["updated"] = row["attributes"]["updated"]
+        return row
+    
+    @property
+    def is_sorted(self) -> bool:
+        return True
 
 class FlowActionsStream(KlaviyoStream):
     """Define custom stream."""
@@ -828,7 +840,7 @@ class FlowActionsStream(KlaviyoStream):
     name = "flowactions"
     path = "/flows/{flow_id}/flow-actions"
     primary_keys = ["id"]
-    replication_key = None
+    replication_key = "updated"
     parent_stream_type = FlowsStream
     schema_filepath = SCHEMAS_DIR / "flowactions.json"
     max_page_size = 50
@@ -841,7 +853,13 @@ class FlowActionsStream(KlaviyoStream):
 
     def post_process(self, row: dict, context: dict) -> dict | None:
         row["flow_id"] = context["flow_id"]
+        row["updated"] = row["attributes"]["updated"]
+        time.sleep(1)
         return row
+    
+    @property
+    def is_sorted(self) -> bool:
+        return True
 
 class FlowMessagesStream(KlaviyoStream):
     """Define custom stream."""
@@ -849,7 +867,7 @@ class FlowMessagesStream(KlaviyoStream):
     name = "flowmessages"
     path = "/flow-actions/{flow_action_id}/flow-messages"
     primary_keys = ["id"]
-    replication_key = None
+    replication_key = "updated"
     parent_stream_type = FlowActionsStream
     schema_filepath = SCHEMAS_DIR / "flowmessages.json"
     max_page_size = 50
@@ -857,7 +875,13 @@ class FlowMessagesStream(KlaviyoStream):
     def post_process(self, row: dict, context: dict) -> dict | None:
         row["flow_id"] = context["flow_id"]
         row["flow_action_id"] = context["flow_action_id"]
+        row["updated"] = row["attributes"]["updated"]
+        time.sleep(1)
         return row
+    
+    @property
+    def is_sorted(self) -> bool:
+        return True
 
 
 class TemplatesStream(KlaviyoStream):

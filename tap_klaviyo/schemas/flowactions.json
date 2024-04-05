@@ -10,6 +10,13 @@
                 "string"
             ]
         },
+        "updated": {
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "attributes": {
             "properties": {
                 "action_type": {
