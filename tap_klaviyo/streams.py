@@ -333,14 +333,14 @@ class CheckoutAmountsByCampaignStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class ReceivedEmailsByFlowStream(MetricAggregatesStream):
+class ReceivedEmailsByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "receivedemailsbyflow"
+    name = "receivedemailsbyflowmessage"
     metric_id = "H4DrTy"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
-    aggregate_by = ["$flow", "$message"]
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflowmessage.json"
+    aggregate_by = ["$message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -355,14 +355,12 @@ class ReceivedEmailsByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
+                flow_message = item['dimensions'][0]
                 counts = item['measurements']['count']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Count": count
                     }
@@ -373,15 +371,15 @@ class ReceivedEmailsByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class OpenedEmailsByFlowStream(MetricAggregatesStream):
+class OpenedEmailsByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "openedemailsbyflow"
+    name = "openedemailsbyflowmessage"
     metric_id = "P4W93C"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflowmessage.json"
     aggregate = "unique"
-    aggregate_by = ["$flow", "$message"]
+    aggregate_by = ["$message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -396,14 +394,12 @@ class OpenedEmailsByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
+                flow_message = item['dimensions'][0]
                 counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Count": count
                     }
@@ -414,15 +410,15 @@ class OpenedEmailsByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class ClickedEmailsByFlowStream(MetricAggregatesStream):
+class ClickedEmailsByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "clickedemailsbyflow"
+    name = "clickedemailsbyflowmessage"
     metric_id = "MYayva"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflowmessage.json"
     aggregate = "unique"
-    aggregate_by = ["$flow", "$message"]
+    aggregate_by = ["$message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -437,14 +433,12 @@ class ClickedEmailsByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
+                flow_message = item['dimensions'][0]
                 counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Count": count
                     }
@@ -455,14 +449,14 @@ class ClickedEmailsByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class BouncedEmailsByFlowStream(MetricAggregatesStream):
+class BouncedEmailsByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "bouncedemailsbyflow"
+    name = "bouncedemailsbyflowmessage"
     metric_id = "Ld4b2k"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
-    aggregate_by = ["$flow", "$message"]
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflowmessage.json"
+    aggregate_by = ["$message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -477,14 +471,12 @@ class BouncedEmailsByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
+                flow_message = item['dimensions'][0]
                 counts = item['measurements']['count']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Count": count
                     }
@@ -495,14 +487,14 @@ class BouncedEmailsByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class UnsubscribesByFlowStream(MetricAggregatesStream):
+class UnsubscribesByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "unsubscribesbyflow"
+    name = "unsubscribesbyflowmessage"
     metric_id = "QqUYDV"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
-    aggregate_by = ["$flow", "$message"]
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflowmessage.json"
+    aggregate_by = ["$message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -517,14 +509,12 @@ class UnsubscribesByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
+                flow_message = item['dimensions'][0]
                 counts = item['measurements']['count']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Count": count
                     }
@@ -535,14 +525,15 @@ class UnsubscribesByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class PlacedOrdersByFlowStream(MetricAggregatesStream):
+class PlacedOrdersByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "placedordersbyflow"
+    name = "placedordersbyflowmessage"
     metric_id = "T7RgqW"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflow.json"
-    aggregate_by = ["$attributed_flow", "$attributed_message"]
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatescountbyflowmessage.json"
+    aggregate = "unique"
+    aggregate_by = ["$attributed_message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -557,14 +548,12 @@ class PlacedOrdersByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
-                counts = item['measurements']['count']
+                flow_message = item['dimensions'][0]
+                counts = item['measurements']['unique']
                 
                 for date, count in zip(record['data']['attributes']['dates'], counts):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Count": count
                     }
@@ -575,15 +564,15 @@ class PlacedOrdersByFlowStream(MetricAggregatesStream):
                         continue
                     yield transformed_record
 
-class CheckoutAmountsByFlowStream(MetricAggregatesStream):
+class CheckoutAmountsByFlowMessageStream(MetricAggregatesStream):
     """Define custom stream"""
 
-    name = "checkoutamountsbyflow"
+    name = "checkoutamountsbyflowmessage"
     metric_id = "T7RgqW"
-    primary_keys = ["FlowName", "Date"]
-    schema_filepath = SCHEMAS_DIR / "metricaggregatessumbyflow.json"
+    primary_keys = ["FlowMessage", "Date"]
+    schema_filepath = SCHEMAS_DIR / "metricaggregatessumbyflowmessage.json"
     aggregate = "sum_value"
-    aggregate_by = ["$attributed_flow", "$attributed_message"]
+    aggregate_by = ["$attributed_message"]
     
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
         """Return a generator of record-type dictionary objects.
@@ -598,14 +587,12 @@ class CheckoutAmountsByFlowStream(MetricAggregatesStream):
         """
         for record in self.request_records(context):
             for item in record['data']['attributes']['data']:
-                flow_name = item['dimensions'][0]
-                flow_message = item['dimensions'][1]
+                flow_message = item['dimensions'][0]
                 sum_values = item['measurements']['sum_value']
                 
                 for date, sum_value in zip(record['data']['attributes']['dates'], sum_values):
                     result = {
                         "Date": date,
-                        "FlowName": flow_name,
                         "FlowMessage": flow_message,
                         "Sum": sum_value
                     }

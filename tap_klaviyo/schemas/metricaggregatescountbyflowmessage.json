@@ -6,19 +6,13 @@
                 "null"
             ]
         },
-        "FlowName": {
-            "type": [
-                "string",
-                "null"
-            ]
-        },
         "FlowMessage": {
             "type": [
                 "string",
                 "null"
             ]
         },
-        "Sum": {
+        "Count": {
             "type": [
                 "number",
                 "null"
