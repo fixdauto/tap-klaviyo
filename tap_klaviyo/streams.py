@@ -639,7 +639,6 @@ class OpenEventsStream(KlaviyoStream):
             params[
                 "filter"
             ] = f'equals(metric_id,"P4W93C"),greater-than({self.replication_key},{filter_timestamp})'
-            self.logger.info(f"params are: {params}")
         if self.max_page_size:
             params["page[size]"] = self.max_page_size
         return params
