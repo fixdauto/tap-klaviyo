@@ -41,7 +41,7 @@ class TapKlaviyo(Tap):
             A list of discovered streams.
         """
         return [
-            streams.EventsStream(self),
+            streams.OpenEventsStream(self),
             streams.CampaignsStream(self),
             streams.MetricsStream(self),
             streams.ProfilesStream(self),

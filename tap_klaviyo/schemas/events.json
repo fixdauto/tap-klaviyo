@@ -78,6 +78,36 @@
                 "object",
                 "null"
             ]
+        },
+        "relationships": {
+            "properties": {
+                "profile": {
+                    "properties": {
+                        "data": {
+                            "properties": {
+                                "id": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            },
+                            "type": [
+                                "object",
+                                "null"
+                            ]   
+                        }
+                    },
+                    "type": [
+                        "object",
+                        "null"
+                    ]   
+                }
+            },
+            "type": [
+                "object",
+                "null"
+            ]
         }
     }
 }
