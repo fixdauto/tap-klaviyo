@@ -625,11 +625,9 @@ class OpenEventsStream(KlaviyoStream):
             params.update(parse_qsl(next_page_token.query))
 
         if self.replication_key:
-            if self.get_starting_timestamp(context):
-                filter_timestamp = self.get_starting_timestamp(context)
-            else:
+            filter_timestamp = self.get_starting_replication_key_value(context)
+            if filter_timestamp == self.config.get("start_date"):
                 filter_timestamp = datetime.now() - relativedelta(days=5)
-
             if self.is_sorted:
                 params["sort"] = self.replication_key
 
