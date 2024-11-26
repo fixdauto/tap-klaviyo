@@ -7,6 +7,25 @@
                 "null"
             ]
         },
+        "campaign_name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "sent_at": {
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "updated_at": {
             "description": "The datetime when the campaign was last updated by a user or the system",
             "format": "date-time",

@@ -20,6 +20,383 @@ if t.TYPE_CHECKING:
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 
+class CampaignValuesReport(KlaviyoStream):
+    """Grabs overall performance by campaign over the last 12 months"""
+
+    name = "campaignvaluesreport"
+    path = "/campaign-values-reports"
+    primary_keys = ["campaign_id"]
+    replication_key = ""
+    rest_method = "POST"
+    records_jsonpath = "$[*]"
+    next_page_token_jsonpath = "$[links][next]"
+    schema_filepath = SCHEMAS_DIR / "campaignvaluesreport.json"
+
+    def prepare_request_payload(
+        self,
+        context: dict | None,
+        next_page_token: _TToken | None,
+    ) -> dict | None:
+        """Prepare the data payload for the REST API request.
+
+        By default, no payload will be sent (return None).
+
+        Developers may override this method if the API requires a custom payload along
+        with the request. (This is generally not required for APIs which use the
+        HTTP 'GET' method.)
+
+        Args:
+            context: Stream partition or context dictionary.
+            next_page_token: Token, page number or any request argument to request the
+                next page of data.
+        """
+        return {
+            "data": {
+                "type": "campaign-values-report",
+                "attributes": {
+                    "statistics": [
+                        "recipients",
+                        "opens_unique",
+                        "open_rate",
+                        "clicks_unique",
+                        "click_rate",
+                        "bounced",
+                        "bounce_rate",
+                        "spam_complaints",
+                        "spam_complaint_rate",
+                        "conversions",
+                        "conversion_uniques",
+                        "conversion_value",
+                        "conversion_rate",
+                        "average_order_value",
+                        "revenue_per_recipient",
+                        "unsubscribes",
+                        "unsubscribe_rate"
+                    ],
+                    "timeframe": {
+                        "key": "last_12_months"
+                    },
+                    "conversion_metric_id": "T7RgqW"
+                },
+            }
+        }
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record["data"]["attributes"]["results"]:
+                campaign_id = item["groupings"]["campaign_id"]
+                recipients = item["statistics"]["recipients"]
+                unique_opens = item["statistics"]["opens_unique"]
+                open_rate = item["statistics"]["open_rate"]
+                unique_clicks = item["statistics"]["clicks_unique"]
+                click_rate = item["statistics"]["click_rate"]
+                bounced_emails = item["statistics"]["bounced"]
+                bounce_rate = item["statistics"]["bounce_rate"]
+                spam_complaints = item["statistics"]["spam_complaints"]
+                spam_complaint_rate = item["statistics"]["spam_complaint_rate"]
+                conversions = item["statistics"]["conversions"]
+                conversion_uniques = item["statistics"]["conversion_uniques"]
+                conversion_value = item["statistics"]["conversion_value"]
+                conversion_rate = item["statistics"]["conversion_rate"]
+                average_order_value = item["statistics"]["average_order_value"]
+                revenue_per_recipient = item["statistics"]["revenue_per_recipient"]
+                unsubscribes = item["statistics"]["unsubscribes"]
+                unsubscribe_rate = item["statistics"]["unsubscribe_rate"]
+
+                result = {
+                    "CampaignId": campaign_id,
+                    "Recipients": recipients,
+                    "UniqueOpens": unique_opens,
+                    "OpenRate": open_rate,
+                    "UniqueClicks": unique_clicks,
+                    "ClickRate": click_rate,
+                    "BouncedEmails": bounced_emails,
+                    "BounceRate": bounce_rate,
+                    "SpamComplaints": spam_complaints,
+                    "SpamComplaintRate": spam_complaint_rate,
+                    "Conversions": conversions,
+                    "ConversionUniques": conversion_uniques,
+                    "ConversionValue": conversion_value,
+                    "ConversionRate": conversion_rate,
+                    "AverageOrderValue": average_order_value,
+                    "RevenuePerRecipient": revenue_per_recipient,
+                    "Unsubscribes": unsubscribes,
+                    "UnsubscribeRate": unsubscribe_rate
+                }
+                
+                transformed_record = self.post_process(result, context)
+                if transformed_record is None:
+                    continue
+                yield transformed_record
+
+
+class FlowValuesReport(KlaviyoStream):
+    """Grabs overall performance by flow over the last 12 months."""
+
+    name = "flowvaluesreport"
+    path = "/flow-values-reports"
+    primary_keys = ["flow_id"]
+    replication_key = ""
+    rest_method = "POST"
+    records_jsonpath = "$[*]"
+    next_page_token_jsonpath = "$[links][next]"
+    schema_filepath = SCHEMAS_DIR / "flowvaluesreport.json"
+
+    def prepare_request_payload(
+        self,
+        context: dict | None,
+        next_page_token: _TToken | None,
+    ) -> dict | None:
+        """Prepare the data payload for the REST API request.
+
+        By default, no payload will be sent (return None).
+
+        Developers may override this method if the API requires a custom payload along
+        with the request. (This is generally not required for APIs which use the
+        HTTP 'GET' method.)
+
+        Args:
+            context: Stream partition or context dictionary.
+            next_page_token: Token, page number or any request argument to request the
+                next page of data.
+        """
+        return {
+            "data": {
+                "type": "flow-values-report",
+                "attributes": {
+                    "statistics": [
+                        "recipients",
+                        "opens_unique",
+                        "open_rate",
+                        "clicks_unique",
+                        "click_rate",
+                        "bounced",
+                        "bounce_rate",
+                        "spam_complaints",
+                        "spam_complaint_rate",
+                        "conversions",
+                        "conversion_uniques",
+                        "conversion_value",
+                        "conversion_rate",
+                        "average_order_value",
+                        "revenue_per_recipient",
+                        "unsubscribes",
+                        "unsubscribe_rate"
+                    ],
+                    "timeframe": {
+                        "key": "last_12_months"
+                    },
+                    "conversion_metric_id": "T7RgqW"
+                },
+            }
+        }
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            for item in record["data"]["attributes"]["results"]:
+                flow_id = item["groupings"]["flow_id"]
+                recipients = item["statistics"]["recipients"]
+                unique_opens = item["statistics"]["opens_unique"]
+                open_rate = item["statistics"]["open_rate"]
+                unique_clicks = item["statistics"]["clicks_unique"]
+                click_rate = item["statistics"]["click_rate"]
+                bounced_emails = item["statistics"]["bounced"]
+                bounce_rate = item["statistics"]["bounce_rate"]
+                spam_complaints = item["statistics"]["spam_complaints"]
+                spam_complaint_rate = item["statistics"]["spam_complaint_rate"]
+                conversions = item["statistics"]["conversions"]
+                conversion_uniques = item["statistics"]["conversion_uniques"]
+                conversion_value = item["statistics"]["conversion_value"]
+                conversion_rate = item["statistics"]["conversion_rate"]
+                average_order_value = item["statistics"]["average_order_value"]
+                revenue_per_recipient = item["statistics"]["revenue_per_recipient"]
+                unsubscribes = item["statistics"]["unsubscribes"]
+                unsubscribe_rate = item["statistics"]["unsubscribe_rate"]
+
+                result = {
+                    "FlowId": flow_id,
+                    "Recipients": recipients,
+                    "UniqueOpens": unique_opens,
+                    "OpenRate": open_rate,
+                    "UniqueClicks": unique_clicks,
+                    "ClickRate": click_rate,
+                    "BouncedEmails": bounced_emails,
+                    "BounceRate": bounce_rate,
+                    "SpamComplaints": spam_complaints,
+                    "SpamComplaintRate": spam_complaint_rate,
+                    "Conversions": conversions,
+                    "ConversionUniques": conversion_uniques,
+                    "ConversionValue": conversion_value,
+                    "ConversionRate": conversion_rate,
+                    "AverageOrderValue": average_order_value,
+                    "RevenuePerRecipient": revenue_per_recipient,
+                    "Unsubscribes": unsubscribes,
+                    "UnsubscribeRate": unsubscribe_rate
+                }
+                
+                transformed_record = self.post_process(result, context)
+                if transformed_record is None:
+                    continue
+                yield transformed_record
+
+
+class FlowSeriesReport(KlaviyoStream):
+    """Grabs daily performance by flow over the last 60 days."""
+
+    name = "flowseriesreport"
+    path = "/flow-series-reports"
+    primary_keys = ["date", "flow_id", "flow_message_id"]
+    replication_key = ""
+    rest_method = "POST"
+    records_jsonpath = "$[*]"
+    next_page_token_jsonpath = "$[links][next]"
+    schema_filepath = SCHEMAS_DIR / "flowseriesreport.json"
+
+    def prepare_request_payload(
+        self,
+        context: dict | None,
+        next_page_token: _TToken | None,
+    ) -> dict | None:
+        """Prepare the data payload for the REST API request.
+
+        By default, no payload will be sent (return None).
+
+        Developers may override this method if the API requires a custom payload along
+        with the request. (This is generally not required for APIs which use the
+        HTTP 'GET' method.)
+
+        Args:
+            context: Stream partition or context dictionary.
+            next_page_token: Token, page number or any request argument to request the
+                next page of data.
+        """
+        now = datetime.now()
+        # 60 days is as far back as you can go for the flow-series-report endpoint with
+        # a daily interval
+        last_60_days = datetime.now() - relativedelta(days=60)
+        start_date = last_60_days.strftime("%Y-%m-%dT%H:%M:%S")
+        end_date = now.strftime("%Y-%m-%dT%H:%M:%S")
+        return {
+            "data": {
+                "type": "flow-series-report",
+                "attributes": {
+                    "statistics": [
+                        "recipients",
+                        "opens_unique",
+                        "open_rate",
+                        "clicks_unique",
+                        "click_rate",
+                        "bounced",
+                        "bounce_rate",
+                        "spam_complaints",
+                        "spam_complaint_rate",
+                        "conversions",
+                        "conversion_uniques",
+                        "conversion_value",
+                        "conversion_rate",
+                        "average_order_value",
+                        "revenue_per_recipient",
+                        "unsubscribes",
+                        "unsubscribe_rate"
+                    ],
+                    "timeframe": {
+                        "start": start_date,
+                        "end": end_date
+                    },
+                    "interval": "daily",
+                    "conversion_metric_id": "T7RgqW"
+                },
+            }
+        }
+    
+    def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
+        """Return a generator of record-type dictionary objects.
+
+        Each record emitted should be a dictionary of property names to their values.
+
+        Args:
+            context: Stream partition or context dictionary.
+
+        Yields:
+            One item per (possibly processed) record in the API.
+        """
+        for record in self.request_records(context):
+            results = record["data"]["attributes"]["results"]
+            if len(results) == 0:
+                continue
+            dates = record["data"]["attributes"]["date_times"]
+            for i in range(len(dates)):
+                date = dates[i]
+                for j in range(len(results)):
+                    flow_id = results[j]["groupings"]["flow_id"]
+                    flow_message_id = results[j]["groupings"]["flow_message_id"]
+                    recipients = results[j]["statistics"]["recipients"][i]
+                    unique_opens = results[j]["statistics"]["opens_unique"][i]
+                    open_rate = results[j]["statistics"]["open_rate"][i]
+                    unique_clicks = results[j]["statistics"]["clicks_unique"][i]
+                    click_rate = results[j]["statistics"]["click_rate"][i]
+                    bounced_emails = results[j]["statistics"]["bounced"][i]
+                    bounce_rate = results[j]["statistics"]["bounce_rate"][i]
+                    spam_complaints = results[j]["statistics"]["spam_complaints"][i]
+                    spam_complaint_rate = results[j]["statistics"]["spam_complaint_rate"][i]
+                    conversions = results[j]["statistics"]["conversions"][i]
+                    conversion_uniques = results[j]["statistics"]["conversion_uniques"][i]
+                    conversion_value = results[j]["statistics"]["conversion_value"][i]
+                    conversion_rate = results[j]["statistics"]["conversion_rate"][i]
+                    average_order_value = results[j]["statistics"]["average_order_value"][i]
+                    revenue_per_recipient = results[j]["statistics"]["revenue_per_recipient"][i]
+                    unsubscribes = results[j]["statistics"]["unsubscribes"][i]
+                    unsubscribe_rate = results[j]["statistics"]["unsubscribe_rate"][i]
+
+                    result = {
+                        "Date": date,
+                        "FlowId": flow_id,
+                        "FlowMessageId": flow_message_id,
+                        "Recipients": recipients,
+                        "UniqueOpens": unique_opens,
+                        "OpenRate": open_rate,
+                        "UniqueClicks": unique_clicks,
+                        "ClickRate": click_rate,
+                        "BouncedEmails": bounced_emails,
+                        "BounceRate": bounce_rate,
+                        "SpamComplaints": spam_complaints,
+                        "SpamComplaintRate": spam_complaint_rate,
+                        "Conversions": conversions,
+                        "ConversionUniques": conversion_uniques,
+                        "ConversionValue": conversion_value,
+                        "ConversionRate": conversion_rate,
+                        "AverageOrderValue": average_order_value,
+                        "RevenuePerRecipient": revenue_per_recipient,
+                        "Unsubscribes": unsubscribes,
+                        "UnsubscribeRate": unsubscribe_rate
+                    }
+                    
+                    transformed_record = self.post_process(result, context)
+                    if transformed_record is None:
+                        continue
+                    yield transformed_record
+
+
 class MetricAggregatesStream(KlaviyoStream):
     """Set up to aggregate the last three months of performance"""
 
@@ -681,6 +1058,9 @@ class CampaignsStream(KlaviyoStream):
         row: dict,
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
+        row["campaign_name"] = row["attributes"]["name"]
+        row["status"] = row["attributes"]["status"]
+        row["sent_at"] = row["attributes"]["send_time"]
         row["updated_at"] = row["attributes"]["updated_at"]
         return row
 
@@ -847,6 +1227,7 @@ class FlowMessagesStream(KlaviyoStream):
     @property
     def is_sorted(self) -> bool:
         return True
+
 
 
 class TemplatesStream(KlaviyoStream):

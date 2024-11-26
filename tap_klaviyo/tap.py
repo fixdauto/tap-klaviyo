@@ -65,6 +65,9 @@ class TapKlaviyo(Tap):
             streams.UnsubscribesByFlowMessageStream(self),
             streams.PlacedOrdersByFlowMessageStream(self),
             streams.CheckoutAmountsByFlowMessageStream(self),
+            streams.CampaignValuesReport(self),
+            streams.FlowValuesReport(self),
+            streams.FlowSeriesReport(self),
         ]
 
 
