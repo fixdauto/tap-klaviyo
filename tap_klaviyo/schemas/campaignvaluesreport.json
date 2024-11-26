@@ -1,0 +1,112 @@
+{
+    "properties": {
+        "CampaignId": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Recipients": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "UniqueOpens": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "OpenRate": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "UniqueClicks": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "ClickRate": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "BouncedEmails": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "BounceRate": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "SpamComplaints": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "SpamComplaintRate": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "Unsubscribes": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "UnsubscribeRate": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "Conversions": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "ConversionUniques": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "ConversionValue": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "ConversionRate": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "AverageOrderValue": {
+            "type": [
+                "number",
+                "null"
+            ]
+        },
+        "RevenuePerRecipient": {
+            "type": [
+                "number",
+                "null"
+            ]
+        }
+    }
+}
