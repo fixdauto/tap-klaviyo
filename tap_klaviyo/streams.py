@@ -25,7 +25,7 @@ class CampaignValuesReport(KlaviyoStream):
 
     name = "campaignvaluesreport"
     path = "/campaign-values-reports"
-    primary_keys = ["campaign_id"]
+    primary_keys = ["CampaignId"]
     replication_key = ""
     rest_method = "POST"
     records_jsonpath = "$[*]"
@@ -145,7 +145,7 @@ class FlowValuesReport(KlaviyoStream):
 
     name = "flowvaluesreport"
     path = "/flow-values-reports"
-    primary_keys = ["flow_id"]
+    primary_keys = ["FlowId"]
     replication_key = ""
     rest_method = "POST"
     records_jsonpath = "$[*]"
@@ -265,7 +265,7 @@ class FlowSeriesReport(KlaviyoStream):
 
     name = "flowseriesreport"
     path = "/flow-series-reports"
-    primary_keys = ["date", "flow_id", "flow_message_id"]
+    primary_keys = ["Date", "FlowId", "FlowMessageId"]
     replication_key = ""
     rest_method = "POST"
     records_jsonpath = "$[*]"
