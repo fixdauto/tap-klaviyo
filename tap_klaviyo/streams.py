@@ -1085,6 +1085,7 @@ class ProfilesStream(KlaviyoStream):
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
         row["updated"] = row["attributes"]["updated"]
+        time.sleep(1)
         return row
 
     @property
