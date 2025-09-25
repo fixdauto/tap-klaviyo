@@ -74,7 +74,7 @@ class CampaignValuesReport(KlaviyoStream):
                         "unsubscribe_rate"
                     ],
                     "timeframe": {
-                        "key": "last_12_months"
+                        "key": "last_365_days"
                     },
                     "conversion_metric_id": "T7RgqW"
                 },
@@ -194,7 +194,7 @@ class FlowValuesReport(KlaviyoStream):
                         "unsubscribe_rate"
                     ],
                     "timeframe": {
-                        "key": "last_12_months"
+                        "key": "last_365_days"
                     },
                     "conversion_metric_id": "T7RgqW"
                 },
