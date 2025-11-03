@@ -11,6 +11,14 @@
                 "string"
             ]
         },
+        "created": {
+            "description": "Date and time when the profile was created, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "updated": {
             "description": "Date and time when the profile was last updated, in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
             "format": "date-time",

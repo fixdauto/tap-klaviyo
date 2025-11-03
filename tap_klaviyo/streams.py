@@ -1075,7 +1075,7 @@ class ProfilesStream(KlaviyoStream):
     name = "profiles"
     path = "/profiles"
     primary_keys = ["id"]
-    replication_key = "updated"
+    replication_key = "created"
     schema_filepath = SCHEMAS_DIR / "profiles.json"
     max_page_size = 100
 
@@ -1084,6 +1084,7 @@ class ProfilesStream(KlaviyoStream):
         row: dict,
         context: dict | None = None,  # noqa: ARG002
     ) -> dict | None:
+        row["created"] = row["attributes"]["created"]
         row["updated"] = row["attributes"]["updated"]
         time.sleep(1)
         return row
