@@ -272,30 +272,27 @@ class FlowSeriesReport(KlaviyoStream):
     next_page_token_jsonpath = "$[links][next]"
     schema_filepath = SCHEMAS_DIR / "flowseriesreport.json"
 
+    # Computed once per sync in get_records and reused by prepare_request_payload
+    # on every page, so the timeframe window is stable across paginated requests.
+    _start_date: str | None = None
+    _end_date: str | None = None
+
     def prepare_request_payload(
         self,
         context: dict | None,
         next_page_token: _TToken | None,
     ) -> dict | None:
-        """Prepare the data payload for the REST API request.
-
-        By default, no payload will be sent (return None).
-
-        Developers may override this method if the API requires a custom payload along
-        with the request. (This is generally not required for APIs which use the
-        HTTP 'GET' method.)
-
-        Args:
-            context: Stream partition or context dictionary.
-            next_page_token: Token, page number or any request argument to request the
-                next page of data.
-        """
-        now = datetime.now()
-        # 60 days is as far back as you can go for the flow-series-report endpoint with
-        # a daily interval
-        last_60_days = datetime.now() - relativedelta(days=60)
-        start_date = last_60_days.strftime("%Y-%m-%dT%H:%M:%S")
-        end_date = now.strftime("%Y-%m-%dT%H:%M:%S")
+        # Use pre-computed dates if available (set in get_records before the first
+        # request so all pages share the same window). Fall back to computing inline
+        # only if called outside of a get_records cycle.
+        if self._start_date and self._end_date:
+            start_date = self._start_date
+            end_date = self._end_date
+        else:
+            now = datetime.now(timezone.utc)
+            last_60_days = now - relativedelta(days=60)
+            start_date = last_60_days.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+            end_date = now.strftime("%Y-%m-%dT%H:%M:%S+00:00")
         return {
             "data": {
                 "type": "flow-series-report",
@@ -324,22 +321,19 @@ class FlowSeriesReport(KlaviyoStream):
                         "end": end_date
                     },
                     "interval": "daily",
-                    "conversion_metric_id": "T7RgqW"
+                    "conversion_metric_id": "T7RgqW",
                 },
             }
         }
-    
+
     def get_records(self, context: dict | None) -> t.Iterable[dict[str, t.Any]]:
-        """Return a generator of record-type dictionary objects.
+        # Pin the window once before the first request so that every paginated
+        # POST uses the exact same timeframe (prepare_request_payload reads these).
+        now = datetime.now(timezone.utc)
+        last_60_days = now - relativedelta(days=60)
+        self._start_date = last_60_days.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        self._end_date = now.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
-        Each record emitted should be a dictionary of property names to their values.
-
-        Args:
-            context: Stream partition or context dictionary.
-
-        Yields:
-            One item per (possibly processed) record in the API.
-        """
         for record in self.request_records(context):
             results = record["data"]["attributes"]["results"]
             if len(results) == 0:
@@ -390,7 +384,7 @@ class FlowSeriesReport(KlaviyoStream):
                         "Unsubscribes": unsubscribes,
                         "UnsubscribeRate": unsubscribe_rate
                     }
-                    
+
                     transformed_record = self.post_process(result, context)
                     if transformed_record is None:
                         continue
@@ -1160,6 +1154,23 @@ class FlowsStream(KlaviyoStream):
     primary_keys = ["id"]
     replication_key = "updated"
     schema_filepath = SCHEMAS_DIR / "flows.json"
+
+    @property
+    def partitions(self) -> list[dict] | None:
+        return [
+            {"filter": "equals(archived,false)"},
+            {"filter": "equals(archived,true)"},
+        ]
+
+    def get_url_params(self, context, next_page_token):
+        url_params = super().get_url_params(context, next_page_token)
+        if context:
+            parent_filter = url_params.get("filter", "")
+            if parent_filter:
+                url_params["filter"] = f"and({parent_filter},{context['filter']})"
+            else:
+                url_params["filter"] = context["filter"]
+        return url_params
 
     def get_child_context(self, record: dict, context: dict | None) -> dict:
         context = context or {}
