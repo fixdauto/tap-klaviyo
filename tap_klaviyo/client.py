@@ -9,6 +9,7 @@ import typing as t
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import parse_qsl
+import requests as requests_lib
 
 from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.exceptions import RetriableAPIError
@@ -57,6 +58,8 @@ class KlaviyoStream(RESTStream):
 
     # Shared across all stream instances in this tap process to avoid bursts
     _last_request_ts: float = 0.0
+    CONNECTION_ERROR_MAX_RETRIES: int = 5
+    CONNECTION_ERROR_BASE_SLEEP_SECONDS: float = 2.0
 
     # ---------------------------
     # Rate limit / throttle knobs
@@ -105,6 +108,29 @@ class KlaviyoStream(RESTStream):
 
                 try:
                     return func(prepared_request, context)
+
+                except requests_lib.exceptions.ConnectionError as ex:
+                    conn_attempt += 1
+                    if conn_attempt > self.CONNECTION_ERROR_MAX_RETRIES:
+                        self.logger.error(
+                            "Connection error after %d retries, giving up: %s",
+                            self.CONNECTION_ERROR_MAX_RETRIES,
+                            ex,
+                        )
+                        raise
+
+                    sleep_s = min(
+                        self.CONNECTION_ERROR_BASE_SLEEP_SECONDS ** conn_attempt,
+                        self.rate_limit_max_sleep_seconds,
+                    ) + random.uniform(0, 1.0)
+                    self.logger.warning(
+                        "ConnectionError (attempt %d/%d): %s. Retrying in %.2fs...",
+                        conn_attempt,
+                        self.CONNECTION_ERROR_MAX_RETRIES,
+                        ex,
+                        sleep_s,
+                    )
+                    time.sleep(sleep_s)
 
                 except RetriableAPIError as ex:
                     resp = getattr(ex, "response", None)
