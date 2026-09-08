@@ -12,7 +12,7 @@ import time
 
 from singer_sdk import metrics
 
-from tap_klaviyo.client import KlaviyoStream
+from tap_klaviyo.client import KlaviyoStream, _isodate_from_date_string
 
 if t.TYPE_CHECKING:
     from urllib.parse import ParseResult
@@ -1011,6 +1011,93 @@ class OpenEventsStream(KlaviyoStream):
         if self.max_page_size:
             params["page[size]"] = self.max_page_size
         return params
+
+
+class SmsEventsStream(KlaviyoStream):
+    """Events for a configurable set of metric IDs (`sms_event_metric_ids`).
+
+    The stream creates one partition per configured metric ID, so each metric
+    keeps its own incremental replication bookmark, and the metric filter uses
+    the widely supported `equals(metric_id,...)` operator. Profile email and
+    phone are resolved from the response's `included` profile resources and
+    emitted as top-level columns.
+    """
+
+    name = "smsevents"
+    path = "/events"
+    primary_keys = ["id"]
+    replication_key = "datetime"
+    schema_filepath = SCHEMAS_DIR / "smsevents.json"
+
+    @property
+    def partitions(self) -> list[dict] | None:
+        return [
+            {"metric_id": metric_id}
+            for metric_id in self.config.get("sms_event_metric_ids", [])
+        ]
+
+    @property
+    def is_sorted(self) -> bool:
+        return True
+
+    def get_url_params(
+        self,
+        context: dict | None,
+        next_page_token: ParseResult | None,
+    ) -> dict[str, t.Any]:
+        params: dict[str, t.Any] = {}
+
+        if next_page_token:
+            params.update(parse_qsl(next_page_token.query))
+            return params
+
+        metric_id = (context or {}).get("metric_id")
+        if not metric_id:
+            msg = (
+                "The smsevents stream requires the sms_event_metric_ids "
+                "config option to be a non-empty list of metric IDs."
+            )
+            raise ValueError(msg)
+
+        filter_timestamp = self.get_starting_replication_key_value(context)
+        if filter_timestamp and "T" not in str(filter_timestamp):
+            filter_timestamp = _isodate_from_date_string(str(filter_timestamp))
+
+        params["sort"] = self.replication_key
+        params["fields[profile]"] = "email,phone_number"
+        params["include"] = "profile"
+        params["filter"] = (
+            f'equals(metric_id,"{metric_id}"),'
+            f"greater-than({self.replication_key},{filter_timestamp})"
+        )
+        if self.max_page_size:
+            params["page[size]"] = self.max_page_size
+        return params
+
+    def parse_response(self, response) -> t.Iterable[dict]:
+        payload = response.json()
+        profiles = {
+            item["id"]: item.get("attributes") or {}
+            for item in payload.get("included") or []
+            if item.get("type") == "profile"
+        }
+        for row in payload.get("data") or []:
+            relationship = (row.get("relationships") or {}).get("profile") or {}
+            profile_id = (relationship.get("data") or {}).get("id")
+            profile_attributes = profiles.get(profile_id) or {}
+            row["profile_id"] = profile_id
+            row["profile_email"] = profile_attributes.get("email")
+            row["profile_phone"] = profile_attributes.get("phone_number")
+            yield row
+
+    def post_process(
+        self,
+        row: dict,
+        context: dict | None = None,
+    ) -> dict | None:
+        row["datetime"] = row["attributes"]["datetime"]
+        row["metric_id"] = (context or {}).get("metric_id")
+        return row
 
 
 class CampaignsStream(KlaviyoStream):

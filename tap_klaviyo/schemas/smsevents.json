@@ -1,0 +1,98 @@
+{
+    "properties": {
+        "id": {
+            "description": "The event ID",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "type": {
+            "description": "The event type",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "datetime": {
+            "description": "Event timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "metric_id": {
+            "description": "The Klaviyo metric ID this event belongs to",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "profile_id": {
+            "description": "Profile ID of the associated profile, if available",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "profile_email": {
+            "description": "Email of the associated profile, resolved from the included profile resource",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "profile_phone": {
+            "description": "Phone number (E.164) of the associated profile, resolved from the included profile resource",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "attributes": {
+            "properties": {
+                "profile_id": {
+                    "description": "Profile ID of the associated profile, if available",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "timestamp": {
+                    "description": "Event timestamp in seconds",
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "event_properties": {
+                    "description": "Event properties, can include attribution data, identifiers and extra properties",
+                    "type": [
+                        "null",
+                        "object"
+                    ]
+                },
+                "datetime": {
+                    "description": "Event timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SS.mmmmmm)",
+                    "format": "date-time",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "uuid": {
+                    "description": "A unique identifier for the event, this can be used as a cursor in pagination",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "type": [
+                "object",
+                "null"
+            ]
+        }
+    }
+}

@@ -32,6 +32,14 @@ class TapKlaviyo(Tap):
             th.DateTimeType,
             description="The earliest record date to sync",
         ),
+        th.Property(
+            "sms_event_metric_ids",
+            th.ArrayType(th.StringType),
+            description=(
+                "Klaviyo metric IDs synced by the smsevents stream. "
+                "One incremental partition is created per metric ID."
+            ),
+        ),
     ).to_dict()
 
     def discover_streams(self) -> list[streams.KlaviyoStream]:
@@ -42,6 +50,7 @@ class TapKlaviyo(Tap):
         """
         return [
             streams.OpenEventsStream(self),
+            streams.SmsEventsStream(self),
             streams.CampaignsStream(self),
             streams.MetricsStream(self),
             streams.ProfilesStream(self),
