@@ -17,6 +17,8 @@ from tap_klaviyo.client import KlaviyoStream, _isodate_from_date_string
 if t.TYPE_CHECKING:
     from urllib.parse import ParseResult
 
+    import requests
+
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 
@@ -1074,7 +1076,7 @@ class SmsEventsStream(KlaviyoStream):
             params["page[size]"] = self.max_page_size
         return params
 
-    def parse_response(self, response) -> t.Iterable[dict]:
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
         payload = response.json()
         profiles = {
             item["id"]: item.get("attributes") or {}
