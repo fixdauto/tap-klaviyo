@@ -57,9 +57,10 @@
                             ]
                         },
                         "category": {
-                            "description": "The category of the integration",
+                            "description": "The category of the integration. Newer Klaviyo accounts return an object ({id, category}) instead of a string.",
                             "type": [
                                 "string",
+                                "object",
                                 "null"
                             ]
                         }
@@ -69,7 +70,6 @@
                         "null"
                     ]
                 }
-
             },
             "type": [
                 "object",
